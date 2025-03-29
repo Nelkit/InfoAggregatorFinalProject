@@ -9,7 +9,11 @@ This assignment aims to challenge you to develop a Python program that functions
 List of dependencies and prerequisites needed to run the project.
 
 - Python >= 3.x
-- Required libraries (e.g., Flask, Pandas, etc.)
+- Required libraries:
+   - BeautifulSoup4
+   - Pandas
+   - Numpy
+   - Requests
 
 ## Installation
 1. Clone the repository:
