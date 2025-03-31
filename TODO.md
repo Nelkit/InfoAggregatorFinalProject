@@ -3,7 +3,7 @@
 ## ✅ Project Setup
 - [x] Set up a new Python project.
 - [x] Create a virtual environment.
-- [ ] Install required dependencies (`requests`, `BeautifulSoup`, `Scrapy`, `unittest`, `Matplotlib`, `Plotly`, `Tkinter`).
+- [x] Install required dependencies (`requests`, `BeautifulSoup`, `Matplotlib`, `Numpy`, `Pandas`).
 - [x] Set up a version control system (e.g., Git) and initialize a repository.
 - [x] Create a `README.md` file with project details.
 
@@ -16,7 +16,7 @@
 
 ## 🕸️ Web Scraping
 - [ ] Identify relevant news article pages to scrape.
-- [ ] Use `BeautifulSoup` or `Scrapy` to extract missing details (e.g., content, author, date).
+- [ ] Use `BeautifulSoup` to extract missing details (e.g., content, author, date).
 - [ ] Handle pagination and dynamic content loading if necessary.
 - [ ] Implement error handling for failed requests.
 - [ ] Respect robots.txt and ethical scraping guidelines.
