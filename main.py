@@ -1,36 +1,44 @@
+from typing import List
 from unicodedata import category
 
 import requests
 from bs4 import BeautifulSoup
 import streamlit as st
 
-from CurrentsAPI.CurrentsAPI import CurrentsAPI
+from TheGuardianAPI.GuardianArticle import GuardianArticle
+from TheGuardianAPI.TheGuardianAPI import TheGuardianAPI
 
-if __name__ == '__main__':
-    # Get the latest news and categories
-    current_api = CurrentsAPI(api_key="hjIDNV6UwRv5-hq_tfDJzuALpIN7ay0mPxuvwuMbRj-wn4IK")
-    categories = current_api.get_categories()
-    news_response = current_api.get_latest_news()
+API_KEY = "f6f96e89-7097-46c0-9266-5d2001202068"
 
-    st.title("Latest News")
-    option = st.selectbox(
-        "Select a category of News?",
-        categories,
-    )
+def fetch_latest_news(category: str = "world") -> List[GuardianArticle]:
+    api = TheGuardianAPI(api_key=API_KEY)
+    return api.get_latest_news(section=category, page_size=10).response.results
 
-    st.write("You selected:", option)
+def render_news_ui(news: List[GuardianArticle]) -> None:
+    st.container()  # inicial opcional
+    for article in news:
+        with st.container(border=True):
+            st.subheader(article.webTitle)
+            st.caption(article.sectionName)
+            st.write(f"🗓 Published on: {article.webPublicationDate.strftime('%Y-%m-%d %H:%M:%S')}")
+            st.markdown(f"[👉 Read more]({article.webUrl})")
 
-    container = st.container()
-    with container:
-        for article in news_response.news:
-            article_container = st.container(border=True)
-            with article_container:
-                st.image(article.image, caption="Sunrise by the mountains")
-                st.subheader(article.title)
-                st.write(article.description)
-                st.write(f"Author: {article.author}")
-                st.write(f"Published on: {article.published}")
-                st.write(f"[Read more]({article.url})")
+def main():
+    st.title("📰 Latest News")
+
+    categories = [
+        "world", "business", "environment", "politics",
+        "education", "science", "technology"
+    ]
+
+    selected_category = st.selectbox("Select a news category:", categories)
+    news = fetch_latest_news(selected_category)
+    render_news_ui(news)
+
+if __name__ == "__main__":
+    main()
+
+
 
 
 
