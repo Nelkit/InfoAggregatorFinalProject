@@ -1,8 +1,8 @@
 from unicodedata import category
 
 class APIClient:
-    def __init__(self):
-        self.api_key = "YOUR_API_KEY"
+    def __init__(self, api_key):
+        self.api_key = api_key
 
     # Esta función simula la obtención de artículos de una API de noticias
     # TODO: implementar la funcion de obtener los articulos de la API de noticias real
@@ -50,7 +50,7 @@ class APIClient:
 class TheGuardianApi(APIClient):
 
     def fetch_articles(self, user_input):
-        # Implementar la lógica para obtener artículos de The Verge
+        # Implementar la lógica para obtener artículos de The Guardian
         pass
 
     def fetch_article_details(self, article_id):

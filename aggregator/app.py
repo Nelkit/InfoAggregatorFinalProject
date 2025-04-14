@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import streamlit as st
-from aggregator.api_client import APIClient
+from aggregator.api_client import APIClient, TheGuardianApi
 from aggregator.scraper import ArticleScraper
 from aggregator.processor import NewsProcessor
 from aggregator.visualizer import NewsVisualizer
@@ -11,7 +11,8 @@ class AggregatorApp:
 		self.limit_selected = None
 		self.source_selected = None
 		self.category_selected = None
-		self.api_client = APIClient()
+		self.api_client = APIClient(api_key="1835612ghjady763167823asd")
+		self.the_guardian_api = TheGuardianApi(api_key="1835612ghjady763167823asd")
 		self.scraper = ArticleScraper()
 		self.processor = NewsProcessor()
 		self.visualizer = NewsVisualizer()
