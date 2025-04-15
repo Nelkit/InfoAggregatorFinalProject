@@ -1,9 +1,5 @@
-import requests
-from bs4 import BeautifulSoup
+from aggregator.app import AggregatorApp
 
-def print_hi(name):
-    print(f'Hi, {name}')
-
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
+if __name__ == "__main__":
+    app = AggregatorApp()
+    app.run()
