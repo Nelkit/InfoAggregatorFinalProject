@@ -1,27 +1,35 @@
-from unicodedata import category
+
+
+from entities.news_article import NewsArticle, TheGuardianArticle
+from entities.user_input import UserInput
+import requests
 
 class APIClient:
-    def __init__(self, api_key):
+    def __init__(self, api_key, base_url):
         self.api_key = api_key
+        self.base_url = base_url
 
     # Esta función simula la obtención de artículos de una API de noticias
     # TODO: implementar la funcion de obtener los articulos de la API de noticias real
-    def fetch_articles(self, user_input):
-        category = user_input.get("category")
-        source = user_input.get("source")
-        limit = user_input.get("limit")
+    def fetch_articles(self, user_input: UserInput) -> list[NewsArticle]:
+        category = user_input.category
+        source = user_input.source
 
         news = []
 
         # Simulación de datos para la demostración
-        for i in range(limit):
-            news.append({
-                "id": i + 1,  # Generar un id único para cada artículo
-                "title": f"Article {i + 1}",
-                "source": source,
-                "date": "2023-10-01",
-                "summary": f"Summary of article {i + 1}",
-            })
+        for i in range(10):
+            article = NewsArticle(
+                title=f"Article {i + 1}",
+                feature_image_url="",
+                content=f"This is the content of article {i + 1}.",
+                summary=f"Summary of article {i + 1}",
+                author="Author Name",
+                source=source,
+                date="2023-10-01",
+                url=f"https://example.com/article-{i + 1}",
+            )
+            news.append(article)
 
         # Implementar lógica de consumo del News API
         return news
@@ -30,32 +38,117 @@ class APIClient:
     # TODO: implementar la funcion de obtener los detalles del articulo de la API de noticias
     def fetch_article_details(self, article_id):
         # Simulación de datos para la demostración
-        return {
-            "id": article_id,
-            "title": f"Article {article_id}",
-            "source": "Source",
-            "date": "2023-10-01",
-            "content": "".join([f"<p>{paragraph}</p>" for paragraph in f"This is the complete and detailed content of article {article_id}. It provides an extensive overview of the topic, including background information, key points, expert opinions, and in-depth analysis to give readers a comprehensive understanding of the subject matter.".split(". ")]),
-            "summary": f"Detailed summary of article {article_id}",
-        }
+        article = NewsArticle(
+            title=f"Article 1",
+            feature_image_url="",
+            content=f"This is the content of article 1.",
+            summary=f"Summary of article 1",
+            author="Author Name",
+            source="source",
+            date="2023-10-01",
+            url=f"https://example.com/article-1",
+        )
+        return article
 
     def fetch_sources(self):
         # Simulación de fuentes para la demostración
-        return ["bbc.com", "cnn.com", "theguardian.com"]
+        return [
+            "All",
+            "BBC News",
+            "CNN News",
+            "The Guardian",
+            "New York Times",
+        ]
 
     def fetch_categories(self):
         # Simulación de categorías para la demostración
-        return ["General", "Tech", "Sports"]
+        return [
+            "Technology",
+            "World",
+            "Business",
+            "Politics",
+            "Science",
+            "Culture"
+        ]
 
+#TODO Crear clases específicas para cada API de noticias
+# -BBCNews
+# -TheGuardian
+# -newyorktimes
+# -CNN
 class TheGuardianApi(APIClient):
 
-    def fetch_articles(self, user_input):
-        # Implementar la lógica para obtener artículos de The Guardian
-        pass
+    def fetch_articles(self, user_input: UserInput, page_size: int = 10) -> list[TheGuardianArticle]:
+        """
+        Fetches the latest news articles from The Guardian API.
 
-    def fetch_article_details(self, article_id):
-        # Implementar la lógica para obtener detalles de un artículo específico de The Verge
-        pass
+        Args:
+            user_input (UserInput): The user input containing category and source.
+            page_size (int, optional): The number of articles to fetch. Defaults to 10.
+
+        Returns:
+            list[TheGuardianArticle]: A list of TheGuardianArticle objects.
+
+        Raises:
+            requests.exceptions.HTTPError: If the API request fails.
+            KeyError: If the response JSON is missing expected keys.
+        """
+        params = {
+            "api-key": self.api_key,
+            "page-size": page_size,
+            "show-fields": "all",
+        }
+        if user_input.category:
+            section = user_input.category
+            params["section"] = section.lower()
+
+        try:
+            url = f"{self.base_url}search"
+
+            response = requests.get(url, params=params)
+            response.raise_for_status()  # Raise an HTTPError for bad responses (4xx and 5xx)
+            response_json = response.json()
+
+            # Validate response structure
+            if "response" not in response_json or "results" not in response_json["response"]:
+                raise KeyError("Unexpected response structure from The Guardian API.")
+
+            # Extract the relevant data
+            response = response_json["response"]
+
+            # create TheGuardianArticle objects
+            articles = [TheGuardianArticle(**item) for item in response["results"]]
+
+            return articles
+
+        except requests.exceptions.RequestException as e:
+            raise requests.exceptions.HTTPError(f"Error fetching news: {e}")
+        except KeyError as e:
+            raise KeyError(f"Error parsing API response: {e}")
+
+    def fetch_article_details(self, url):
+        url = url.replace("https://www.theguardian.com/", self.base_url)
+        params = {
+            "api-key": self.api_key,
+            "show-fields": "all",
+        }
+
+        response = requests.get(url, params=params)
+        response.raise_for_status()  # Raise an HTTPError for bad responses (4xx and 5xx)
+        response_json = response.json()
+
+        # Validate response structure
+        if "response" not in response_json or "content" not in response_json["response"]:
+            raise KeyError("Unexpected response structure from The Guardian API.")
+
+        # Extract the relevant data
+        response = response_json["response"]
+
+        # create TheGuardianArticle objects
+        item = response["content"]
+        article = TheGuardianArticle(**item)
+
+        return article
 
 class BBCNewsApi(APIClient):
 
