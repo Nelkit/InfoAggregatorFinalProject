@@ -41,21 +41,22 @@ class AggregatorApp:
 	''' Renderiza la ventana de detalles del artículo cuando se hace clic en `🔗 Read More`'''
 	@st.dialog("News Details", width="large")
 	def render_article_detail(self):
-		article_id = st.session_state.get('article_id')
-		article_source = st.session_state.get('source')
+		with st.spinner("Fetching article details..."):
+			article_id = st.session_state.get('article_id')
+			article_source = st.session_state.get('source')
 
-		if article_id and article_source:
-			article = None
-			if article_source == "The Guardian":
-				article = self.the_guardian_api.fetch_article_details(url=article_id)
-			else:
-				article = self.api_client.fetch_article_details(article_id)
+			if article_id and article_source:
+				article = None
+				if article_source == "The Guardian":
+					article = self.the_guardian_api.fetch_article_details(url=article_id)
+				else:
+					article = self.api_client.fetch_article_details(article_id)
 
-			if article:
-				st.header(article.title)
-				if article.feature_image_url:
-					st.image(article.feature_image_url, caption=article.title)
-				st.markdown(article.get_article_full_md(), unsafe_allow_html=True)
+				if article:
+					st.header(article.title)
+					if article.feature_image_url:
+						st.image(article.feature_image_url, caption=article.title)
+					st.markdown(article.get_article_full_md(), unsafe_allow_html=True)
 
 
 	''' Renderiza cada artículo en la sección de noticias más recientes '''
@@ -119,26 +120,26 @@ class AggregatorApp:
 		user_input = UserInput(category=self.category_selected, source=self.source_selected)
 		# Se obtienen los artículos de la API
 		articles = []
+		with st.spinner("Fetching news..."):
+			# cuando la fuente seleccionada es "All" se obtienen los artículos de ambas APIs
+			if self.source_selected == "All":
+				theguarding_articles = self.the_guardian_api.fetch_articles(user_input)
+				dummy_articles = self.api_client.fetch_articles(user_input)
+				articles = theguarding_articles + dummy_articles
 
-		# cuando la fuente seleccionada es "All" se obtienen los artículos de ambas APIs
-		if self.source_selected == "All":
-			theguarding_articles = self.the_guardian_api.fetch_articles(user_input)
-			dummy_articles = self.api_client.fetch_articles(user_input)
-			articles = theguarding_articles + dummy_articles
+			# cuando la fuente seleccionada es "The Guardian" se obtienen los artículos de la API de noticias
+			elif self.source_selected == "The Guardian":
+				articles = self.the_guardian_api.fetch_articles(user_input)
 
-		# cuando la fuente seleccionada es "The Guardian" se obtienen los artículos de la API de noticias
-		elif self.source_selected == "The Guardian":
-			articles = self.the_guardian_api.fetch_articles(user_input)
+			# Se enriquecen los artículos con información con scrapping adicional aca se pueden agregar más funciones
+			self.articles = self.scraper.enrich_articles(articles)
 
-		# Se enriquecen los artículos con información con scrapping adicional aca se pueden agregar más funciones
-		self.articles = self.scraper.enrich_articles(articles)
+			# Se llama las funciones de renderizado para cada pestaña
+			with tab1:
+				self.render_visualizations()
 
-		# Se llama las funciones de renderizado para cada pestaña
-		with tab1:
-			self.render_visualizations()
-
-		with tab2:
-			self.render_latest_news()
+			with tab2:
+				self.render_latest_news()
 
 		# Se llama a la función de renderizado del pie de página
 		self.render_footer()
