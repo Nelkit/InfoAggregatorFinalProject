@@ -34,9 +34,9 @@ List of dependencies and prerequisites needed to run the project.
 ## Running the Project
 1. Ensure the virtual environment is activated (if used).
 2. Run the script or application:
-   ```sh
-   python main.py
-   ```
+```sh
+   streamlit run main.py
+```
 
 
 

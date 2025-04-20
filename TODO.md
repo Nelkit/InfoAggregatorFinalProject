@@ -1,6 +1,8 @@
 # To-Do List: Information Aggregator with Web API and Scraping
 
 ## ✅ Project Setup
+#### **Assigned to:** `Nelkit`
+
 - [x] Set up a new Python project.
 - [x] Create a virtual environment.
 - [x] Install required dependencies (`requests`, `BeautifulSoup`, `Matplotlib`, `Numpy`, `Pandas`).
@@ -8,6 +10,7 @@
 - [x] Create a `README.md` file with project details.
 
 ## 📡 News API Integration
+#### **Assigned to:** `Person1, Person2`
 - [ ] Research and choose a public news API (e.g., News API, Bing News Search API).
 - [ ] Register for API access and obtain API keys.
 - [ ] Implement API request functionality to fetch news articles.
@@ -15,6 +18,7 @@
 - [ ] Parse and structure JSON/XML responses.
 
 ## 🕸️ Web Scraping
+#### **Assigned to:** `Person1, Person2`
 - [ ] Identify relevant news article pages to scrape.
 - [ ] Use `BeautifulSoup` to extract missing details (e.g., content, author, date).
 - [ ] Handle pagination and dynamic content loading if necessary.
@@ -22,31 +26,37 @@
 - [ ] Respect robots.txt and ethical scraping guidelines.
 
 ## 🔄 Data Processing
+#### **Assigned to:** `Person1, Person2`
 - [ ] Merge API data with scraped data.
 - [ ] Remove duplicates and clean up data inconsistencies.
 - [ ] Format the dataset for further processing and visualization.
 
 ## 📊 Data Visualization
+#### **Assigned to:** `Person1, Person2`
 - [ ] Select a visualization library (Matplotlib/Plotly).
 - [ ] Implement visualizations (e.g., article distribution by source/category).
 - [ ] Provide insights based on the aggregated data.
 
 ## 🏗️ Object-Oriented Programming (OOP)
+#### **Assigned to:** `Person1, Person2`
 - [ ] Define appropriate classes for data entities (e.g., `NewsArticle`, `NewsAggregator`).
 - [ ] Implement modular and scalable architecture using OOP principles.
 - [ ] Use encapsulation, inheritance, and polymorphism effectively.
 
-## 🛠️ Reliable and Tested Code with GUI
+## 🛠️ Reliable and Tested Code with GUI 
+#### **Assigned to:** `Nelkit`
 - [ ] Write unit tests for critical functions (`unittest`).
 - [ ] Ensure sufficient test coverage.
-- [ ] Design and implement a graphical user interface (GUI) using `Tkinter`.
-- [ ] Integrate data display and interaction in the GUI.
+- [x] Design and implement a graphical user interface (GUI) using `Streamlit`.
+- [x] Integrate data display and interaction in the GUI.
 
 ## ⚡ Optional Features
+#### **Assigned to:** `Person1, Person2`
 - [ ] Allow users to specify the number of articles to fetch.
 - [ ] Implement caching to reduce API requests and scraping load.
 
 ## 🎥 Video Presentation
+#### **Assigned to:** `Person1, Person2`
 - [ ] Plan the video outline:
   - Introduction (overview of the assignment).
   - Objectives (functionality, OOP, GUI, testing).
