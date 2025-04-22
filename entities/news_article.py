@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Dict, Any
 
 class NewsArticle:
     def __init__(self, title: str, feature_image_url: str, content: Optional[str], summary: str, author: Optional[str], source: str, date: str, url: str):
@@ -74,3 +74,55 @@ class TheGuardianArticle(NewsArticle):
 
     def __repr__(self):
         return f"{self.__class__.__name__}(title={self.title!r}, section={self.sectionName!r}, date={self.date!r})"
+
+class NYTArticle(NewsArticle):
+    def __init__(
+        self, 
+        abstract : str, # summary of the news
+        byline : dict, # dictionary with the authors
+        document_type,
+        headline : dict, # dictionary with the following keys [main, kicker, print_headline]
+        _id, 
+        keywords, # dictionary with the following keys [name, value, rank]
+        multimedia : Dict[str, Any], # dictionary with the following keys [caption, credit, default, thumbnail]
+        # default has the following keys [url, height, width]
+        # thumbnail has the following keys [url, height, width]
+        news_desk, 
+        print_page,
+        print_section,
+        pub_date : str, # self explanatory
+        section_name,
+        snippet, 
+        source : str, 
+        subsection_name,
+        type_of_material,
+        uri,
+        web_url : str,
+        word_count
+    ):
+        super().__init__(
+            # using sample querys, the enpoint is not getting this field
+            title = str(headline.get('print_headline')), 
+            feature_image_url = multimedia.get('default', {}).get('url'), 
+            content = None, 
+            summary = abstract, 
+            author = byline.get('original'), 
+            source = source, 
+            date = pub_date, 
+            url = web_url
+        )
+        self.byline = byline
+        self.document_type = document_type
+        self.headline = headline
+        self._id = _id
+        self.keywords = keywords
+        self.multimedia = multimedia
+        self.news_desk = news_desk
+        self.print_page = print_page
+        self.print_section = print_section
+        self.section_name = section_name
+        self.snippet = snippet
+        self.subsection_name = subsection_name
+        self.type_of_material = type_of_material
+        self.uri = uri
+        self.word_count = word_count
