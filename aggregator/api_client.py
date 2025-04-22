@@ -1,10 +1,10 @@
 
 
-from entities.news_article import NewsArticle, TheGuardianArticle, NYTArticle
+from entities.news_article import NewsArticle, TheGuardianArticle, NYTArticle, BBCArticle
 from entities.user_input import UserInput
 import requests
 
-from entities.news_article import NewsArticle, TheGuardianArticle
+from entities.news_article import NewsArticle, TheGuardianArticle, BBCArticle, NYTArticle
 from entities.user_input import UserInput
 import requests
 
@@ -125,17 +125,50 @@ class TheGuardianApi(APIClient):
             raise KeyError(f"Error parsing API response: {e}")
 
 
-class BBCNewsApi(APIClient):
 
-    def fetch_articles(self, user_input):
-        # Implementar la lógica para obtener artículos de BBC News
-        pass
 
-class CNNNewsApi(APIClient):
+class BBCApi(APIClient):
 
-    def fetch_articles(self, user_input):
-        # Implementar la lógica para obtener artículos de CNN News
-        pass
+    def fetch_articles(self, user_input: UserInput, page_size: int = 3) -> list[BBCArticle]:
+        try:
+            params = {
+                "api_token": self.api_key,
+                "search": f"{user_input.source}, {user_input.category}",
+                "language": "en",
+                "limit": page_size
+            }
+
+            response = requests.get("https://api.thenewsapi.com/v1/news/all", params=params)
+            response.raise_for_status()
+
+            response_json = response.json()
+
+            # Debug: imprimir la respuesta completa
+            import json
+            print("📦 Respuesta de la API:")
+            print(json.dumps(response_json, indent=2))
+
+            articles_data = response_json.get("data")
+            if not isinstance(articles_data, list):
+                print("⚠️ 'data' no es una lista válida.")
+                return []
+
+            articles = []
+            for item in articles_data:
+                try:
+                    article = BBCArticle.from_dict(item)
+                    articles.append(article)
+                except Exception as e:
+                    print(f"⚠️ Error construyendo BBCArticle: {e}")
+                    continue
+
+            return articles
+        except requests.exceptions.RequestException as e:
+            raise requests.exceptions.HTTPError(f"Error fetching news: {e}")
+        except KeyError as e:
+            raise KeyError(f"Error parsing API response: {e}")
+
+
 
 class NYTNewsArticles(APIClient):
     # override the fetch articles function
