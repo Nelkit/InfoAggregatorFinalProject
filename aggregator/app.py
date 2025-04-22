@@ -21,14 +21,20 @@ class AggregatorApp:
 			api_key="f6f96e89-7097-46c0-9266-5d2001202068",
 			base_url="https://content.guardianapis.com/",
 		)
-		self.scraper = ArticleScraper()
 		self.processor = NewsProcessor()
 		self.visualizer = NewsVisualizer()
 		self.articles = []
 
+	def get_article_details(self, article_url: str) -> NewsArticle:
+		for article in self.articles:
+			if article.url == article_url:
+				return article
+		raise ValueError("Artículo no encontrado en la memoria interna.")
+
 	'''
 	Renderiza la barra lateral para la entrada del usuario
 	'''
+
 	def render_sidebar(self):
 		st.sidebar.title("Search Filters")
 
@@ -39,6 +45,7 @@ class AggregatorApp:
 		self.source_selected = st.sidebar.selectbox("Source", sources)
 
 	''' Renderiza la ventana de detalles del artículo cuando se hace clic en `🔗 Read More`'''
+
 	@st.dialog("News Details", width="large")
 	def render_article_detail(self):
 		with st.spinner("Fetching article details..."):
@@ -46,11 +53,7 @@ class AggregatorApp:
 			article_source = st.session_state.get('source')
 
 			if article_id and article_source:
-				article = None
-				if article_source == "The Guardian":
-					article = self.the_guardian_api.fetch_article_details(url=article_id)
-				else:
-					article = self.api_client.fetch_article_details(article_id)
+				article = self.get_article_details(article_id)
 
 				if article:
 					st.header(article.title)
@@ -58,9 +61,9 @@ class AggregatorApp:
 						st.image(article.feature_image_url, caption=article.title)
 					st.markdown(article.get_article_full_md(), unsafe_allow_html=True)
 
-
 	''' Renderiza cada artículo en la sección de noticias más recientes '''
-	def render_article(self, article:NewsArticle):
+
+	def render_article(self, article: NewsArticle):
 		with st.container(border=True):
 			st.markdown(
 				article.get_article_preview_md(limit=200),
@@ -73,11 +76,13 @@ class AggregatorApp:
 				self.render_article_detail()
 
 	''' Renderiza la sección de noticias más recientes '''
+
 	def render_latest_news(self):
 		for article in self.articles:
 			self.render_article(article)
 
 	''' Renderiza la sección de visualizaciones de datos '''
+
 	def render_visualizations(self):
 		st.subheader("Visualizaciones de Datos")
 
@@ -94,6 +99,7 @@ class AggregatorApp:
 			st.write(plot)
 
 	''' Renderiza el pie de página con el estado y la última actualización '''
+
 	def render_footer(self):
 		col1, col2 = st.columns(2)
 		source = self.source_selected
@@ -109,6 +115,7 @@ class AggregatorApp:
 			st.markdown(col2_text, unsafe_allow_html=True)
 
 	''' Renderiza la aplicación principal '''
+
 	def run(self):
 		st.set_page_config(page_title="News Aggregator", layout="wide")
 		st.title("News Aggregator")
@@ -116,7 +123,7 @@ class AggregatorApp:
 		self.render_sidebar()
 
 		# se crean las pestañas para las noticias más recientes y la visualización
-		tab1, tab2 = st.tabs([ "📈 Visualization", "📰 Latest News"])
+		tab1, tab2 = st.tabs(["📈 Visualization", "📰 Latest News"])
 		user_input = UserInput(category=self.category_selected, source=self.source_selected)
 		# Se obtienen los artículos de la API
 		articles = []
@@ -132,7 +139,9 @@ class AggregatorApp:
 				articles = self.the_guardian_api.fetch_articles(user_input)
 
 			# Se enriquecen los artículos con información con scrapping adicional aca se pueden agregar más funciones
-			self.articles = self.scraper.enrich_articles(articles)
+			scraper = ArticleScraper(articles)
+			self.articles = scraper.enrich_articles()
+			self.articles = scraper.get_enriched_articles()
 
 			# Se llama las funciones de renderizado para cada pestaña
 			with tab1:
