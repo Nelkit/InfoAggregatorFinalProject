@@ -34,7 +34,6 @@ class NewsArticle:
             self.summary = self.summary[:limit] + "..."
         return f"{self.summary}"
 
-
 class TheGuardianArticle(NewsArticle):
     def __init__(
         self,
@@ -126,3 +125,16 @@ class NYTArticle(NewsArticle):
         self.type_of_material = type_of_material
         self.uri = uri
         self.word_count = word_count
+
+class CNNArticle(NewsArticle):
+    def __init__(
+        self,
+        id: str,
+        title: str,
+    ):
+        super().__init__(
+            source="CNN News",    
+        )
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(title={self.title!r}, section={self.sectionName!r}, date={self.date!r})"
