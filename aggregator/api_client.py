@@ -1,6 +1,6 @@
 
 
-from entities.news_article import NewsArticle, TheGuardianArticle, NYTArticle
+from entities.news_article import CNNArticle, NewsArticle, TheGuardianArticle, NYTArticle
 from entities.user_input import UserInput
 import requests
 
@@ -133,9 +133,46 @@ class BBCNewsApi(APIClient):
 
 class CNNNewsApi(APIClient):
 
-    def fetch_articles(self, user_input):
-        # Implementar la lógica para obtener artículos de CNN News
-        pass
+    def fetch_articles(self, user_input: UserInput, page_size: int = 10) -> list[CNNArticle]:
+        """
+        Fetches the latest news articles from The Guardian API.
+
+        Args:
+            user_input (UserInput): The user input containing category and source.
+            page_size (int, optional): The number of articles to fetch. Defaults to 10.
+
+        Returns:
+            list[CNNArticle]: A list of CNNArticle objects.
+
+        Raises:
+            requests.exceptions.HTTPError: If the API request fails.
+            KeyError: If the response JSON is missing expected keys.
+        """
+        category = ""
+        if user_input.category:
+            category = user_input.category
+
+        try:
+            url = f"{self.base_url}top-headlines?category={category.lower()}&apikey={self.api_key}&lang=en"
+
+            response = requests.get(url)
+            response.raise_for_status()  # Raise an HTTPError for bad responses (4xx and 5xx)
+            response_json = response.json()
+
+            # Validate response structure
+            if "articles" not in response_json:
+                raise KeyError("Unexpected response structure from GNEWS API.")
+
+            # create TheGuardianArticle objects
+            print(response_json)
+            articles = [CNNArticle(**item) for item in response_json["articles"]]
+
+            return articles
+
+        except requests.exceptions.RequestException as e:
+            raise requests.exceptions.HTTPError(f"Error fetching news: {e}")
+        except KeyError as e:
+            raise KeyError(f"Error parsing API response: {e}")
 
 class NYTNewsArticles(APIClient):
     # override the fetch articles function

@@ -129,12 +129,31 @@ class NYTArticle(NewsArticle):
 class CNNArticle(NewsArticle):
     def __init__(
         self,
-        id: str,
         title: str,
+        description: str,
+        content: str,
+        url: str,
+        image: str,
+        publishedAt: str,
+        source: str,
     ):
         super().__init__(
-            source="CNN News",    
+            date=publishedAt, 
+            source="CNN News",
+            title=title,
+            feature_image_url=None,
+            content=content,
+            summary=None,
+            author=None,
+            url=url    
         )
 
+        self.title=title
+        self.description=description
+        self.content=content
+        self.url=url
+        self.image=image
+
+
     def __repr__(self):
-        return f"{self.__class__.__name__}(title={self.title!r}, section={self.sectionName!r}, date={self.date!r})"
+        return f"{self.__class__.__name__}(title={self.title!r}, date={self.date!r})"
