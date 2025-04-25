@@ -92,7 +92,7 @@ class NYTArticle(NewsArticle):
         print_section,
         pub_date : str, # self explanatory
         section_name,
-        snippet, 
+        snippet,
         source : str, 
         subsection_name,
         type_of_material,
@@ -126,3 +126,5 @@ class NYTArticle(NewsArticle):
         self.type_of_material = type_of_material
         self.uri = uri
         self.word_count = word_count
+        self.main = self.headline.get('main')
+        self.kicker = self.headline.get('kicker')

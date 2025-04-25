@@ -1,4 +1,5 @@
-from entities.news_article import NewsArticle
+from entities.news_article import NewsArticle, NYTArticle
+from api_client import GoogleSearchArticles
 from bs4 import BeautifulSoup
 import requests
 
@@ -54,16 +55,23 @@ class ArticleScraper:
             #"feature_image_url": "",
         }
 
-    def scraping_nytimes(self, url: str) -> dict:
-        # Realiza scraping de un artículo de The New York Times
+    def scraping_nytimes(self, url : str) -> dict:
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
-        print(url)
-
-        # Extrae el contenido del artículo: adaptenlo según la estructura real de la página
+        # getting the content
+        article_tag = soup.find('article')
+        if article_tag:
+            content = ' '.join(p.text.strip() for p in article_tag.find_all('p'))
+        else:
+            # Fallback to all <p> tags
+            content = ' '.join(p.text.strip() for p in soup.find_all('p'))
+        # getting the title
+        if soup.title and soup.title.text:
+            title = soup.title.text.title().strip() # needs verification before adding it
         return {
-
-        }
+            "content" : content,
+            # "title" : title
+        }        
 
     def scraping_cnn(self, url: str) -> dict:
         # Realiza scraping de un artículo de CNN
