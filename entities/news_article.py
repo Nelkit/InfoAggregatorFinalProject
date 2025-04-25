@@ -107,7 +107,7 @@ class NYTArticle(NewsArticle):
             content = None, 
             summary = abstract, 
             author = byline.get('original'), 
-            source = source, 
+            source = "New York Times", 
             date = pub_date, 
             url = web_url
         )
