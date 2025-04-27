@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import streamlit as st
-from aggregator.api_client import APIClient, TheGuardianApi
+from aggregator.api_client import APIClient, TheGuardianApi, BBCApi
 from aggregator.scraper import ArticleScraper
 from aggregator.processor import NewsProcessor
 from aggregator.visualizer import NewsVisualizer
@@ -20,6 +20,10 @@ class AggregatorApp:
 		self.the_guardian_api = TheGuardianApi(
 			api_key="f6f96e89-7097-46c0-9266-5d2001202068",
 			base_url="https://content.guardianapis.com/",
+		)
+		self.bbc_api = BBCApi(
+			api_key="2HGE4su9OzsdXp4GMbJ1Hb2PpWt9ZFWsLud7QFVC",
+			base_url="https://api.thenewsapi.com/v1/news/all?"
 		)
 		self.processor = NewsProcessor()
 		self.visualizer = NewsVisualizer()
@@ -137,6 +141,9 @@ class AggregatorApp:
 			# cuando la fuente seleccionada es "The Guardian" se obtienen los artículos de la API de noticias
 			elif self.source_selected == "The Guardian":
 				articles = self.the_guardian_api.fetch_articles(user_input)
+    
+			elif self.source_selected == "BBC News":
+				articles = self.bbc_api.fetch_articles(user_input)
 
 			# Se enriquecen los artículos con información con scrapping adicional aca se pueden agregar más funciones
 			scraper = ArticleScraper(articles)
