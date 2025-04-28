@@ -35,7 +35,6 @@ class NewsArticle:
             self.summary = self.summary[:limit] + "..."
         return f"{self.summary}"
 
-
 class TheGuardianArticle(NewsArticle):
     def __init__(
         self,
@@ -163,3 +162,35 @@ class BBCArticle(NewsArticle):
         }
         filtered = {k: article.get(k, "") for k in valid_fields}
         return BBCArticle(**filtered)
+
+class CNNArticle(NewsArticle):
+    def __init__(
+        self,
+        title: str,
+        description: str,
+        content: str,
+        url: str,
+        image: str,
+        publishedAt: str,
+        source: str,
+    ):
+        super().__init__(
+            date=publishedAt, 
+            source="GNews",
+            title=title,
+            feature_image_url="",
+            content=content,
+            summary="",
+            author=None,
+            url=url    
+        )
+
+        self.title=title
+        self.description=description
+        self.content=content
+        self.url=url
+        self.image=image
+
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(title={self.title!r}, date={self.date!r})"

@@ -1,7 +1,7 @@
 from datetime import datetime
-
 import streamlit as st
-from aggregator.api_client import TheGuardianApi, BBCApi, NYTNewsApi
+
+from aggregator.api_client import CNNNewsApi, TheGuardianApi, BBCApi, NYTNewsApi, APIClient
 from aggregator.scraper import ArticleScraper
 from aggregator.processor import NewsProcessor
 from aggregator.visualizer import NewsVisualizer
@@ -13,19 +13,23 @@ class AggregatorApp:
 	def __init__(self):
 		self.source_selected = None
 		self.category_selected = None
+		self.api_client = APIClient(api_key="", base_url="")
 		self.the_guardian_api = TheGuardianApi(
 			api_key="f6f96e89-7097-46c0-9266-5d2001202068",
 			base_url="https://content.guardianapis.com/",
 		)
 		self.bbc_api = BBCApi(
 			api_key="2HGE4su9OzsdXp4GMbJ1Hb2PpWt9ZFWsLud7QFVC",
-			base_url="https://api.thenewsapi.com/v1/news/all?"
+			base_url="https://api.thenewsapi.com/v1/"
 		)
 		self.nyt_api = NYTNewsApi(
 			api_key="zv2dhOM3UJMipTtusff6f1dD3GSxnEXe",
 			base_url="https://api.nytimes.com/svc/search/v2/"
 		)
-
+		self.cnn_news_api = CNNNewsApi(
+			api_key="83eb364c60aa9cad8a67cf93ca2bde9d",
+			base_url="https://gnews.io/api/v4/",
+		)
 		self.processor = NewsProcessor()
 		self.visualizer = NewsVisualizer()
 		self.articles = []
@@ -65,6 +69,7 @@ class AggregatorApp:
 					if article.feature_image_url:
 						st.image(article.feature_image_url, caption=article.title)
 					st.markdown(article.get_article_full_md(), unsafe_allow_html=True)
+					st.markdown(article.url)
 
 	''' Renderiza cada artículo en la sección de noticias más recientes '''
 
@@ -91,17 +96,25 @@ class AggregatorApp:
 	def render_visualizations(self):
 		st.subheader("Visualizaciones de Datos")
 
-		# Se crean los contenedores para las visualizaciones
 		with st.container(border=True):
-			df = self.processor.clean(self.articles)
-			plot = self.visualizer.source_distribution_plot(df)
-			st.write(plot)
+			plot = self.visualizer.source_distribution_plot(self.articles)
+			st.plotly_chart(plot, key="chart_1")
 
 		# Se crean los contenedores para las visualizaciones
 		with st.container(border=True):
-			df = self.processor.clean(self.articles)
-			plot = self.visualizer.articles_by_day_plot(df)
-			st.write(plot)
+			plot = self.visualizer.word_cloud_plot(self.articles)
+			st.plotly_chart(plot, key="chart_2")
+
+		# Se crean los contenedores para las visualizaciones
+		with st.container(border=True):
+			plot = self.visualizer.articles_by_day_plot(self.articles)
+			st.plotly_chart(plot, key="chart_3")
+
+		# Se crean los contenedores para las visualizaciones
+		with st.container(border=True):
+			plot = self.visualizer.number_of_words_plot(self.articles)
+			st.plotly_chart(plot, key="chart_4")
+
 
 	''' Renderiza el pie de página con el estado y la última actualización '''
 
@@ -135,20 +148,29 @@ class AggregatorApp:
 		with st.spinner("Fetching news..."):
 			# cuando la fuente seleccionada es "All" se obtienen los artículos de ambas APIs
 			if self.source_selected == "All":
-				theguarding_articles = self.the_guardian_api.fetch_articles(user_input)
-				bbc_articles = self.bbc_api.fetch_articles(user_input)
-				nyt_articles = self.nyt_api.fetch_articles(user_input)
-				articles = theguarding_articles + bbc_articles + nyt_articles
+				theguarding_articles = self.the_guardian_api.fetch_articles(category=user_input.category)
+				#bbc_articles = self.bbc_api.fetch_articles(category=user_input.category, source=user_input.source)
+				#cnn_articles = self.cnn_news_api.fetch_articles(category=user_input.category)
+				nyt_articles = self.nyt_api.fetch_articles(category=user_input.category)
+				articles = (
+						theguarding_articles +
+						#bbc_articles +
+						#cnn_articles +
+						nyt_articles
+				)
 
 			# cuando la fuente seleccionada es "The Guardian" se obtienen los artículos de la API de noticias
 			elif self.source_selected == "The Guardian":
-				articles = self.the_guardian_api.fetch_articles(user_input)
-    
+				articles = self.the_guardian_api.fetch_articles(user_input.category)
+
 			elif self.source_selected == "BBC News":
-				articles = self.bbc_api.fetch_articles(user_input)
+				articles = self.bbc_api.fetch_articles(user_input.source, user_input.category)
 
 			elif self.source_selected == "New York Times":
-				articles = self.nyt_api.fetch_articles(user_input)
+				articles = self.nyt_api.fetch_articles(user_input.category)
+
+			elif self.source_selected == "GNews":
+				articles = self.cnn_news_api.fetch_articles(user_input.category)
 
 			# Se enriquecen los artículos con información con scrapping adicional aca se pueden agregar más funciones
 			scraper = ArticleScraper(articles)

@@ -11,7 +11,7 @@ class ArticleScraper:
         self.scrapers = {
             "The Guardian": self.scraping_guardian,
             "New York Times": self.scraping_nytimes,
-            "CNN News": self.scraping_cnn,
+            "GNews": self.scraping_cnn,
             "BBC News": self.scraping_bbc
         }
 
@@ -24,7 +24,7 @@ class ArticleScraper:
             if scraper:
                 try:
                     # Ejecuta la función de scraping para obtener los datos enriquecidos
-                    enriched_data = scraper(article.url)
+                    enriched_data = scraper(article)
 
                     # Asigna cada dato enriquecido al atributo correspondiente del artículo
                     for key, value in enriched_data.items():
@@ -40,12 +40,10 @@ class ArticleScraper:
         # Devuelve la lista de artículos enriquecidos
         return self.articles
 
-    def scraping_guardian(self, url: str) -> dict:
+    def scraping_guardian(self, article: NewsArticle) -> dict:
         # Realiza scraping de un artículo de The Guardian
-        response = requests.get(url)
+        response = requests.get(article.url)
         soup = BeautifulSoup(response.content, 'html.parser')
-        print(url)
-        #print(soup.prettify())
 
         return {
             #"title": ""
@@ -54,8 +52,8 @@ class ArticleScraper:
             #"feature_image_url": "",
         }
 
-    def scraping_nytimes(self, url : str) -> dict:
-        response = requests.get(url)
+    def scraping_nytimes(self, article: NewsArticle) -> dict:
+        response = requests.get(article.url)
         soup = BeautifulSoup(response.content, 'html.parser')
         # getting the content
         article_tag = soup.find('article')
@@ -72,22 +70,22 @@ class ArticleScraper:
             # "title" : title
         }        
 
-    def scraping_cnn(self, url: str) -> dict:
+    def scraping_cnn(self, article: NewsArticle) -> dict:
         # Realiza scraping de un artículo de CNN
-        response = requests.get(url)
+        response = requests.get(article.url)
         soup = BeautifulSoup(response.content, 'html.parser')
-        print(url)
+        #print(url)
 
         # Extrae el contenido del artículo: adaptenlo según la estructura real de la página
         return {
 
         }
 
-    def scraping_bbc(self, url: str) -> dict:
+    def scraping_bbc(self, article: NewsArticle) -> dict:
         # Realiza scraping de un artículo de BBC
-        response = requests.get(url)
+        response = requests.get(article.url)
         soup = BeautifulSoup(response.content, 'html.parser')
-        print(url)
+        #print(url)
 
         # Extrae el contenido del artículo: adaptenlo según la estructura real de la página
         return {
