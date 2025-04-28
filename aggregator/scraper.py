@@ -1,5 +1,4 @@
 from entities.news_article import NewsArticle, NYTArticle
-from api_client import GoogleSearchArticles
 from bs4 import BeautifulSoup
 import requests
 

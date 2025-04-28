@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import streamlit as st
-from aggregator.api_client import APIClient, TheGuardianApi, BBCApi
+from aggregator.api_client import TheGuardianApi, BBCApi, NYTNewsApi
 from aggregator.scraper import ArticleScraper
 from aggregator.processor import NewsProcessor
 from aggregator.visualizer import NewsVisualizer
@@ -13,10 +13,6 @@ class AggregatorApp:
 	def __init__(self):
 		self.source_selected = None
 		self.category_selected = None
-		self.api_client = APIClient(
-			api_key="1835612ghjady763167823asd",
-			base_url="https://localhost"
-		)
 		self.the_guardian_api = TheGuardianApi(
 			api_key="f6f96e89-7097-46c0-9266-5d2001202068",
 			base_url="https://content.guardianapis.com/",
@@ -25,6 +21,11 @@ class AggregatorApp:
 			api_key="2HGE4su9OzsdXp4GMbJ1Hb2PpWt9ZFWsLud7QFVC",
 			base_url="https://api.thenewsapi.com/v1/news/all?"
 		)
+		self.nyt_api = NYTNewsApi(
+			api_key="zv2dhOM3UJMipTtusff6f1dD3GSxnEXe",
+			base_url="https://api.nytimes.com/svc/search/v2/"
+		)
+
 		self.processor = NewsProcessor()
 		self.visualizer = NewsVisualizer()
 		self.articles = []
@@ -135,8 +136,9 @@ class AggregatorApp:
 			# cuando la fuente seleccionada es "All" se obtienen los artículos de ambas APIs
 			if self.source_selected == "All":
 				theguarding_articles = self.the_guardian_api.fetch_articles(user_input)
-				dummy_articles = self.api_client.fetch_articles(user_input)
-				articles = theguarding_articles + dummy_articles
+				bbc_articles = self.bbc_api.fetch_articles(user_input)
+				nyt_articles = self.nyt_api.fetch_articles(user_input)
+				articles = theguarding_articles + bbc_articles + nyt_articles
 
 			# cuando la fuente seleccionada es "The Guardian" se obtienen los artículos de la API de noticias
 			elif self.source_selected == "The Guardian":
@@ -144,6 +146,9 @@ class AggregatorApp:
     
 			elif self.source_selected == "BBC News":
 				articles = self.bbc_api.fetch_articles(user_input)
+
+			elif self.source_selected == "New York Times":
+				articles = self.nyt_api.fetch_articles(user_input)
 
 			# Se enriquecen los artículos con información con scrapping adicional aca se pueden agregar más funciones
 			scraper = ArticleScraper(articles)

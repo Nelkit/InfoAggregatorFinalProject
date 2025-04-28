@@ -1,9 +1,3 @@
-
-
-from entities.news_article import NewsArticle, TheGuardianArticle, NYTArticle, BBCArticle
-from entities.user_input import UserInput
-import requests
-
 from entities.news_article import NewsArticle, TheGuardianArticle, BBCArticle, NYTArticle
 from entities.user_input import UserInput
 import requests
@@ -15,18 +9,6 @@ class APIClient:
         self.base_url = base_url          # URL base de la API
 
     def fetch_articles(self, user_input: UserInput) -> list[NewsArticle]:
-        """
-        Obtiene una lista de artículos según la categoría y fuente proporcionadas por el usuario.
-        Simula una llamada a la API (debes implementar la lógica real para producción).
-
-        Args:
-            user_input (UserInput): Entrada del usuario con filtros.
-
-        Returns:
-            list[NewsArticle]: Lista de artículos.
-        """
-        category = user_input.category
-        source = user_input.source
 
         # Simulación de artículos
         news = []
@@ -125,9 +107,6 @@ class TheGuardianApi(APIClient):
         except KeyError as e:
             raise KeyError(f"Error parsing API response: {e}")
 
-
-
-
 class BBCApi(APIClient):
 
     def fetch_articles(self, user_input: UserInput, page_size: int = 3) -> list[BBCArticle]:
@@ -169,14 +148,12 @@ class BBCApi(APIClient):
         except KeyError as e:
             raise KeyError(f"Error parsing API response: {e}")
 
-
-
-class NYTNewsArticles(APIClient):
+class NYTNewsApi(APIClient):
     # override the fetch articles function
     def fetch_articles(
         self,
         user_input : UserInput
-    ):
+    ) -> list[NYTArticle]:
         """
         Fetches the lastests news articles from the NYT
         The API endpoint is the following: https://api.nytimes.com/svc/search/v2/articlesearch.json
@@ -206,7 +183,7 @@ class NYTNewsArticles(APIClient):
         }
         try:
             response = requests.get(
-                url = self.base_url,
+                url = f"{self.base_url}articlesearch.json",
                 params = parameters,
                 headers = headers
             )

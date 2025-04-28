@@ -2,10 +2,10 @@ import plotly.express as px
 
 class NewsVisualizer:
     #TODO Implementar los siguientes graficos
-    # 1. Gráfico de distribución por fuente
-    # 2. Nube de Palabras por noticia
-    # 3. Gráfico de artículos por día (cuantos artículos se publicaron por día)
-    # 4. Numero de palabras por artículo
+    # 1. Gráfico de distribución por fuente | Saantiago
+    # 2. Nube de Palabras por noticia  | Juan David
+    # 3. Gráfico de artículos por día (cuantos artículos se publicaron por día) | Nelkit
+    # 4. Numero de palabras por artículo | Luis
     def source_distribution_plot(self, articles):
         df = [{"source": "source1", "count": 10}, {"source": "source2", "count": 20}]
         fig = px.bar(df, x='source', title="Distribution by source")
