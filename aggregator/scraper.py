@@ -1,6 +1,11 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 from entities.news_article import NewsArticle
 =======
+from entities.news_article import NewsArticle, NYTArticle
+>>>>>>> Stashed changes
+=======
+from entities.news_article import NewsArticle
 from entities.news_article import NewsArticle, NYTArticle
 >>>>>>> Stashed changes
 from bs4 import BeautifulSoup
@@ -17,10 +22,15 @@ class ArticleScraper:
             "New York Times": self.scraping_nytimes,
 <<<<<<< Updated upstream
             "CNN News": self.scraping_cnn,
+<<<<<<< Updated upstream
 =======
             "GNews": self.scraping_GNews,
 >>>>>>> Stashed changes
             "BBC News": self.scraping_bbc
+=======
+            "GNews": self.scraping_GNews,
+            "BBC News (bbc-news)": self.scraping_bbc
+>>>>>>> Stashed changes
         }
 
     def enrich_articles(self):
@@ -33,8 +43,13 @@ class ArticleScraper:
                 try:
                     # Ejecuta la función de scraping para obtener los datos enriquecidos
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                     enriched_data = scraper(article.url)
 =======
+                    enriched_data = scraper(article)
+>>>>>>> Stashed changes
+=======
+                    enriched_data = scraper(article.url)
                     enriched_data = scraper(article)
 >>>>>>> Stashed changes
 
@@ -95,6 +110,7 @@ class ArticleScraper:
 
     def scraping_bbc(self, url: str) -> dict:
         # Realiza scraping de un artículo de BBC
+<<<<<<< Updated upstream
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
         print(url)
@@ -107,6 +123,8 @@ class ArticleScraper:
 
     def scraping_cnn(self, url: str) -> dict:
         # Realiza scraping de un artículo de CNN
+=======
+>>>>>>> Stashed changes
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
         print(url)
@@ -116,8 +134,13 @@ class ArticleScraper:
 
         }
 
+<<<<<<< Updated upstream
     def scraping_bbc(self, url: str) -> dict:
         # Realiza scraping de un artículo de BBC
+=======
+    def scraping_cnn(self, url: str) -> dict:
+        # Realiza scraping de un artículo de CNN
+>>>>>>> Stashed changes
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
         print(url)
@@ -125,6 +148,45 @@ class ArticleScraper:
         # Extrae el contenido del artículo: adaptenlo según la estructura real de la página
         return {
 
+<<<<<<< Updated upstream
 =======
 >>>>>>> Stashed changes
         }
+=======
+        }
+
+    def scraping_bbc(self, url: str) -> dict:
+        print(f"Starting BBC scraping for URL: {url}")
+        
+
+        response = requests.get(url)
+        print(f"Response status: {response.status_code}")
+            
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+                
+                # Extract content
+            content_blocks = soup.find_all(['p', 'h2'], class_=['ssrcss-1q0x1qg-Paragraph', 'ssrcss-1f3bvyz-StyledHeading'])
+            content = "\n".join([block.get_text().strip() for block in content_blocks])
+            print(f"Content found: {bool(content)}")
+                
+                # Extract image
+            image_url = None
+            image_element = soup.find('img', class_='ssrcss-evoj7m-Image')
+            if image_element and image_element.get('src'):
+                    image_url = image_element.get('src')
+                    print(f"Found image with class: {image_url}")
+            else:
+                    image_tag = soup.find('img')
+                    if image_tag and image_tag.get('src'):
+                        image_url = image_tag['src']
+                        print(f"Found generic image: {image_url}")
+                    else:
+                        print("No image found")
+                
+            return {
+                    "content": content,
+                    "feature_image_url": image_url
+                }
+            
+>>>>>>> Stashed changes
