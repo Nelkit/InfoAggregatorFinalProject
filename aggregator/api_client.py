@@ -109,13 +109,13 @@ class TheGuardianApi(APIClient):
 
 class BBCApi(APIClient):
 
+
     def fetch_articles(self, user_input: UserInput, page_size: int = 3) -> list[BBCArticle]:
         try:
             params = {
                 "api_token": self.api_key,
                 "search": f"{user_input.source}, {user_input.category}",
                 "language": "en",
-                "limit": page_size
                 "pageSize": page_size,
             }
             
@@ -128,26 +128,14 @@ class BBCApi(APIClient):
 
             # Debug: imprimir la respuesta completa
             import json
-            print("📦 Respuesta de la API:")
-            print(json.dumps(response_json, indent=2))
             # Assuming you already have the response JSON object
             articles_data = response_json.get("articles")  # Access the 'articles' key
 
-            articles_data = response_json.get("data")
             # Validate that 'articles' contains a list
             if not isinstance(articles_data, list):
-                print("⚠️ 'data' no es una lista válida.")
                 print("⚠️ 'articles' is not a valid list.")
                 return []
 
-            articles = []
-            for item in articles_data:
-                try:
-                    article = BBCArticle.from_dict(item)
-                    articles.append(article)
-                except Exception as e:
-                    print(f"⚠️ Error construyendo BBCArticle: {e}")
-                    continue
             # Create BBCArticle objects and store them
             try:
                 # Assuming BBCArticle accepts dictionary unpacking (**item)
@@ -170,8 +158,6 @@ class BBCApi(APIClient):
         except KeyError as e:
             raise KeyError(f"Error parsing API response: {e}")
 
-class NYTNewsApi(APIClient):
-    @st.cache_data
 
 
 class NYTNewsArticles(APIClient):
