@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 from entities.news_article import NewsArticle
+=======
+from entities.news_article import NewsArticle, NYTArticle
+>>>>>>> Stashed changes
 from bs4 import BeautifulSoup
 import requests
 
@@ -11,7 +15,11 @@ class ArticleScraper:
         self.scrapers = {
             "The Guardian": self.scraping_guardian,
             "New York Times": self.scraping_nytimes,
+<<<<<<< Updated upstream
             "CNN News": self.scraping_cnn,
+=======
+            "GNews": self.scraping_GNews,
+>>>>>>> Stashed changes
             "BBC News": self.scraping_bbc
         }
 
@@ -24,7 +32,11 @@ class ArticleScraper:
             if scraper:
                 try:
                     # Ejecuta la función de scraping para obtener los datos enriquecidos
+<<<<<<< Updated upstream
                     enriched_data = scraper(article.url)
+=======
+                    enriched_data = scraper(article)
+>>>>>>> Stashed changes
 
                     # Asigna cada dato enriquecido al atributo correspondiente del artículo
                     for key, value in enriched_data.items():
@@ -40,12 +52,10 @@ class ArticleScraper:
         # Devuelve la lista de artículos enriquecidos
         return self.articles
 
-    def scraping_guardian(self, url: str) -> dict:
+    def scraping_guardian(self, article: NewsArticle) -> dict:
         # Realiza scraping de un artículo de The Guardian
-        response = requests.get(url)
+        response = requests.get(article.url)
         soup = BeautifulSoup(response.content, 'html.parser')
-        print(url)
-        #print(soup.prettify())
 
         return {
             #"title": ""
@@ -54,8 +64,37 @@ class ArticleScraper:
             #"feature_image_url": "",
         }
 
-    def scraping_nytimes(self, url: str) -> dict:
-        # Realiza scraping de un artículo de The New York Times
+    def scraping_nytimes(self, article: NewsArticle) -> dict:
+        response = requests.get(article.url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        # getting the content
+        article_tag = soup.find('article')
+        if article_tag:
+            content = ' '.join(p.text.strip() for p in article_tag.find_all('p'))
+        else:
+            # Fallback to all <p> tags
+            content = ' '.join(p.text.strip() for p in soup.find_all('p'))
+        # getting the title
+        if soup.title and soup.title.text:
+            title = soup.title.text.title().strip() # needs verification before adding it
+        return {
+            "content" : content,
+            # "title" : title
+        }        
+
+
+    def scraping_GNews(self, url: str) -> dict:
+        # Realiza scraping de un artículo de GNews
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        #print(url)
+
+        return {
+
+        }
+
+    def scraping_bbc(self, url: str) -> dict:
+        # Realiza scraping de un artículo de BBC
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
         print(url)
@@ -63,6 +102,7 @@ class ArticleScraper:
         # Extrae el contenido del artículo: adaptenlo según la estructura real de la página
         return {
 
+<<<<<<< Updated upstream
         }
 
     def scraping_cnn(self, url: str) -> dict:
@@ -85,4 +125,6 @@ class ArticleScraper:
         # Extrae el contenido del artículo: adaptenlo según la estructura real de la página
         return {
 
+=======
+>>>>>>> Stashed changes
         }

@@ -3,31 +3,31 @@
 ## ✅ Project Setup
 #### **Assigned to:** `Nelkit`
 
-- [x] Set up a new Python project.
-- [x] Create a virtual environment.
-- [x] Install required dependencies (`requests`, `BeautifulSoup`, `Matplotlib`, `Numpy`, `Pandas`).
-- [x] Set up a version control system (e.g., Git) and initialize a repository.
-- [x] Create a `README.md` file with project details.
+- [x] ~~Set up a new Python project~~.
+- [x] ~~Create a virtual environment~~.
+- [x] ~~Install required dependencies (`requests`, `BeautifulSoup`, `Matplotlib`, `Numpy`, `Pandas`).~~
+- [x] ~~Set up a version control system (e.g., Git) and initialize a repository.~~
+- [x] ~~Create a `README.md` file with project details.~~
 
 ## 📡 News API Integration
 #### **Assigned to:** `Person1, Person2`
-- [ ] Research and choose a public news API (e.g., News API, Bing News Search API).
-- [ ] Register for API access and obtain API keys.
-- [ ] Implement API request functionality to fetch news articles.
-- [ ] Allow users to filter by category or source.
-- [ ] Parse and structure JSON/XML responses.
+- [x] ~~Research and choose a public news API (e.g., News API, Bing News Search API).~~
+- [x] ~~Register for API access and obtain API keys.~~
+- [x] ~~Implement API request functionality to fetch news articles.~~
+- [x] ~~Allow users to filter by category or source.~~
+- [x] ~~Parse and structure JSON/XML responses.~~
 
 ## 🕸️ Web Scraping
 #### **Assigned to:** `Person1, Person2`
-- [ ] Identify relevant news article pages to scrape.
-- [ ] Use `BeautifulSoup` to extract missing details (e.g., content, author, date).
-- [ ] Handle pagination and dynamic content loading if necessary.
+- [x] ~~Identify relevant news article pages to scrape.~~
+- [x] ~~Use `BeautifulSoup` to extract missing details (e.g., content, author, date).~~
+- [x] Handle pagination and dynamic content loading if necessary.
 - [ ] Implement error handling for failed requests.
 - [ ] Respect robots.txt and ethical scraping guidelines.
 
 ## 🔄 Data Processing
 #### **Assigned to:** `Person1, Person2`
-- [ ] Merge API data with scraped data.
+- [x] Merge API data with scraped data.
 - [ ] Remove duplicates and clean up data inconsistencies.
 - [ ] Format the dataset for further processing and visualization.
 
@@ -39,16 +39,16 @@
 
 ## 🏗️ Object-Oriented Programming (OOP)
 #### **Assigned to:** `Person1, Person2`
-- [ ] Define appropriate classes for data entities (e.g., `NewsArticle`, `NewsAggregator`).
-- [ ] Implement modular and scalable architecture using OOP principles.
+- [x] ~~Define appropriate classes for data entities (e.g., `NewsArticle`, `NewsAggregator`).~~
+- [x] ~~Implement modular and scalable architecture using OOP principles.~~
 - [ ] Use encapsulation, inheritance, and polymorphism effectively.
 
 ## 🛠️ Reliable and Tested Code with GUI 
 #### **Assigned to:** `Nelkit`
 - [ ] Write unit tests for critical functions (`unittest`).
 - [ ] Ensure sufficient test coverage.
-- [x] Design and implement a graphical user interface (GUI) using `Streamlit`.
-- [x] Integrate data display and interaction in the GUI.
+- [x] ~~Design and implement a graphical user interface (GUI) using `Streamlit`.~~
+- [x] ~~Integrate data display and interaction in the GUI.~~
 
 ## ⚡ Optional Features
 #### **Assigned to:** `Person1, Person2`

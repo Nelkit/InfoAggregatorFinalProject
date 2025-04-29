@@ -21,7 +21,7 @@ class NewsArticle:
     def get_article_preview_md(self, limit: int = 100):
         title = f"### {self.title}"
         subtitle = f"**Source:** {self.source} | **Date:** {self.date}"
-        return f"{title} \n {subtitle} \n {self.__get_summary_md__(limit=limit)}"
+        return f"{title} \n {subtitle} \n\n {self.__get_summary_md__(limit=limit)}"
 
     def get_article_full_md(self):
         subtitle = f"**Source:** {self.source} | **Date:** {self.date}"
@@ -34,7 +34,6 @@ class NewsArticle:
         else:
             self.summary = self.summary[:limit] + "..."
         return f"{self.summary}"
-
 
 class TheGuardianArticle(NewsArticle):
     def __init__(
@@ -93,7 +92,7 @@ class NYTArticle(NewsArticle):
         print_section,
         pub_date : str, # self explanatory
         section_name,
-        snippet, 
+        snippet,
         source : str, 
         subsection_name,
         type_of_material,
@@ -108,7 +107,7 @@ class NYTArticle(NewsArticle):
             content = None, 
             summary = abstract, 
             author = byline.get('original'), 
-            source = source, 
+            source = "New York Times", 
             date = pub_date, 
             url = web_url
         )
@@ -127,6 +126,8 @@ class NYTArticle(NewsArticle):
         self.type_of_material = type_of_material
         self.uri = uri
         self.word_count = word_count
+        self.main = self.headline.get('main')
+        self.kicker = self.headline.get('kicker')
         
 class BBCArticle(NewsArticle):
     def __init__(
@@ -161,3 +162,38 @@ class BBCArticle(NewsArticle):
         }
         filtered = {k: article.get(k, "") for k in valid_fields}
         return BBCArticle(**filtered)
+<<<<<<< Updated upstream
+=======
+
+class GNewsArticle(NewsArticle):
+    def __init__(
+        self,
+        title: str,
+        description: str,
+        content: str,
+        url: str,
+        image: str,
+        publishedAt: str,
+        source: str,
+    ):
+        super().__init__(
+            date=publishedAt, 
+            source="GNews",
+            title=title,
+            feature_image_url=image,
+            content=content, 
+            summary=description,
+            author=None,
+            url=url    
+        )
+
+        self.title=title
+        self.description=description
+        self.content=content
+        self.url=url
+        self.image=image
+
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(title={self.title!r}, date={self.date!r})"
+>>>>>>> Stashed changes

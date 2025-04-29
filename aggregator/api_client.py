@@ -1,12 +1,12 @@
 
-
-from entities.news_article import NewsArticle, TheGuardianArticle, NYTArticle, BBCArticle
+from entities.news_article import GNewsArticle,BBCArticle, NewsArticle, TheGuardianArticle, NYTArticle
 from entities.user_input import UserInput
 import requests
 
-from entities.news_article import NewsArticle, TheGuardianArticle, BBCArticle, NYTArticle
 from entities.user_input import UserInput
 import requests
+from datetime import datetime
+import streamlit as st
 
 class APIClient:
     def __init__(self, api_key, base_url):
@@ -14,18 +14,6 @@ class APIClient:
         self.base_url = base_url          # URL base de la API
 
     def fetch_articles(self, user_input: UserInput) -> list[NewsArticle]:
-        """
-        Obtiene una lista de artículos según la categoría y fuente proporcionadas por el usuario.
-        Simula una llamada a la API (debes implementar la lógica real para producción).
-
-        Args:
-            user_input (UserInput): Entrada del usuario con filtros.
-
-        Returns:
-            list[NewsArticle]: Lista de artículos.
-        """
-        category = user_input.category
-        source = user_input.source
 
         # Simulación de artículos
         news = []
@@ -51,7 +39,7 @@ class APIClient:
         return [
             "All",
             "BBC News",
-            "CNN News",
+            "GNews",
             "The Guardian",
             "New York Times",
         ]
@@ -69,14 +57,9 @@ class APIClient:
             "Culture"
         ]
 
-#TODO Crear clases específicas para cada API de noticias
-# -BBCNews
-# -TheGuardian
-# -newyorktimes
-# -CNN
 class TheGuardianApi(APIClient):
-
-    def fetch_articles(self, user_input: UserInput, page_size: int = 10) -> list[TheGuardianArticle]:
+    @st.cache_data
+    def fetch_articles(_self, category: str, _page_size: int = 10) -> list[TheGuardianArticle]:
         """
         Fetches the latest news articles from The Guardian API.
 
@@ -92,16 +75,16 @@ class TheGuardianApi(APIClient):
             KeyError: If the response JSON is missing expected keys.
         """
         params = {
-            "api-key": self.api_key,
-            "page-size": page_size,
+            "api-key": _self.api_key,
+            "page-size": _page_size,
             "show-fields": "all",
         }
-        if user_input.category:
-            section = user_input.category
-            params["section"] = section.lower()
+
+        section = category
+        params["section"] = section.lower()
 
         try:
-            url = f"{self.base_url}search"
+            url = f"{_self.base_url}search"
 
             response = requests.get(url, params=params)
             response.raise_for_status()  # Raise an HTTPError for bad responses (4xx and 5xx)
@@ -123,9 +106,6 @@ class TheGuardianApi(APIClient):
             raise requests.exceptions.HTTPError(f"Error fetching news: {e}")
         except KeyError as e:
             raise KeyError(f"Error parsing API response: {e}")
-
-
-
 
 class BBCApi(APIClient):
 
@@ -168,14 +148,12 @@ class BBCApi(APIClient):
         except KeyError as e:
             raise KeyError(f"Error parsing API response: {e}")
 
-
-
-class NYTNewsArticles(APIClient):
-    # override the fetch articles function
+class NYTNewsApi(APIClient):
+    @st.cache_data
     def fetch_articles(
-        self,
-        user_input : UserInput
-    ):
+        _self,
+        category: str,
+    ) -> list[NYTArticle]:
         """
         Fetches the lastests news articles from the NYT
         The API endpoint is the following: https://api.nytimes.com/svc/search/v2/articlesearch.json
@@ -191,11 +169,12 @@ class NYTNewsArticles(APIClient):
         - KeyError: If the response JSON is missing "response" or "docs" in "response".
         """
         parameters = {
-            "api-key" : self.api_key,
-            "q" : user_input.category, # what are the articles about?
-            "sort" : "newest", # available options: best (default), newest, oldest, relevance
+            "api-key" : _self.api_key,
+            "q" : category, # what are the articles about?
+            "sort" : "best", # available options: best (default), newest, oldest, relevance
             "begin_date" : "20200101", # format (YYYYMMDD)
-            "end_date" : "20250401",
+            "end_date" : datetime.today().strftime("%Y%m%d"),
+            # "page" : 1, # optional parameter
             "fq" : 'type:("Article")' # special parameters that allows granular filters
             # types of fields can be found in https://developer.nytimes.com/docs/articlesearch-product/1/overview
         }
@@ -204,7 +183,7 @@ class NYTNewsArticles(APIClient):
         }
         try:
             response = requests.get(
-                url = self.base_url,
+                url = f"{_self.base_url}articlesearch.json",
                 params = parameters,
                 headers = headers
             )
@@ -215,6 +194,97 @@ class NYTNewsArticles(APIClient):
                 raise KeyError("Unexpected response structure from The NYT API.")
             articles = [NYTArticle(**art) for art in response_json["response"]["docs"]]
             return articles
+        except requests.exceptions.RequestException as e:
+            raise requests.exceptions.HTTPError(f"Error fetching news: {e}")
+        except KeyError as e:
+            raise KeyError(f"Error parsing API response: {e}")
+
+class GoogleSearchArticles(APIClient):
+    """
+    This is a complementary class that searches google articles according to the title when not available for webscraping
+    """
+    def fetch_alternative_sources(self, troublesome_article : NYTArticle) -> NYTArticle:
+        """
+        Fetches the results of a google search based on an article that is not available due to paywall or other restrictions
+        The API endpoint is the following: https://serpapi.com/search
+        
+        Args:
+        - NYTArticle: class that contains the all the necessary fields for the search
+        
+        Returns:
+        - NYTArticle: class that contains a different url for future webscrapping
+        
+        Raises:
+        - requests.exceptions.HTTPError: If the API request fails
+        - KeyError: If the response JSON is missing "organic_results", empty organic results, or not available links (response 200).
+        
+        """
+        selected_attributes = ['title', 'main', 'kicker', 'summary']
+        search_criteria = next((getattr(troublesome_article, attribute) for attribute in selected_attributes if getattr(troublesome_article, attribute) is not None), None)
+        try:
+            if search_criteria is None:
+                raise Exception("There is no search criteria to filter")
+            parameters = {
+                "api_key" : self.api_key,
+                "q" : search_criteria,
+                "location" : "Sydney, Australia"
+            }
+            response = requests.get(
+                url = self.base_url,
+                params = parameters,
+            )
+            response.raise_for_status()
+            response_json = response.json()
+            if "organic_results" not in response_json or response_json['organic_results'] == []:
+                raise KeyError("Unexpected response structure from SerpApi")
+            # list that has all the results related to the query
+            google_results = response_json['orginic_results']
+            # filtered only the results that are accesible
+            filtered_results = list(filter(lambda r: requests.get(r.get('link')).status_code == 200, google_results))
+            if len(filtered_results) == 0:
+                raise Exception(f"There are no available links for the criteria '{search_criteria}'")
+            # changing the original attribute
+            troublesome_article.url = filtered_results[0].get('link')
+            return troublesome_article
+        except Exception as e:
+            raise e
+
+class GNewsApi(APIClient):
+    @st.cache_data
+    def fetch_articles(_self, category: str, page_size: int = 10) -> list[GNewsArticle]:
+        """
+        Fetches the latest news articles from The Guardian API.
+
+        Args:
+            user_input (UserInput): The user input containing category and source.
+            page_size (int, optional): The number of articles to fetch. Defaults to 10.
+
+        Returns:
+            list[GNewsArticle]: A list of GNewsArticle objects.
+
+        Raises:
+            requests.exceptions.HTTPError: If the API request fails.
+            KeyError: If the response JSON is missing expected keys.
+        """
+        category = category.lower()
+
+        try:
+            url = f"{_self.base_url}top-headlines?category={category}&apikey={_self.api_key}&lang=en"
+
+            response = requests.get(url)
+            response.raise_for_status()  # Raise an HTTPError for bad responses (4xx and 5xx)
+            response_json = response.json()
+
+            # Validate response structure
+            if "articles" not in response_json:
+                raise KeyError("Unexpected response structure from GNews API.")
+
+            # create TheGuardianArticle objects
+            print(response_json)
+            articles = [GNewsArticle(**item) for item in response_json["articles"]]
+
+            return articles
+
         except requests.exceptions.RequestException as e:
             raise requests.exceptions.HTTPError(f"Error fetching news: {e}")
         except KeyError as e:
