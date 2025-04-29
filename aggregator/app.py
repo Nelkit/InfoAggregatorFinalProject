@@ -1,7 +1,6 @@
 from datetime import datetime
 import streamlit as st
-
-from aggregator.api_client import CNNNewsApi, TheGuardianApi, BBCApi, NYTNewsApi, APIClient
+from aggregator.api_client import GNewsApi, TheGuardianApi, BBCApi, NYTNewsApi, APIClient
 from aggregator.scraper import ArticleScraper
 from aggregator.processor import NewsProcessor
 from aggregator.visualizer import NewsVisualizer
@@ -26,9 +25,9 @@ class AggregatorApp:
 			api_key="zv2dhOM3UJMipTtusff6f1dD3GSxnEXe",
 			base_url="https://api.nytimes.com/svc/search/v2/"
 		)
-		self.cnn_news_api = CNNNewsApi(
+		self.GNews_news_api = GNewsApi(
 			api_key="83eb364c60aa9cad8a67cf93ca2bde9d",
-			base_url="https://gnews.io/api/v4/",
+			base_url="https://GNews.io/api/v4/",
 		)
 		self.processor = NewsProcessor()
 		self.visualizer = NewsVisualizer()
@@ -102,8 +101,9 @@ class AggregatorApp:
 
 		# Se crean los contenedores para las visualizaciones
 		with st.container(border=True):
+			st.markdown("**Word cloud by category**")
 			plot = self.visualizer.word_cloud_plot(self.articles)
-			st.plotly_chart(plot, key="chart_2")
+			st.pyplot(plot)
 
 		# Se crean los contenedores para las visualizaciones
 		with st.container(border=True):
@@ -170,7 +170,7 @@ class AggregatorApp:
 				articles = self.nyt_api.fetch_articles(user_input.category)
 
 			elif self.source_selected == "GNews":
-				articles = self.cnn_news_api.fetch_articles(user_input.category)
+				articles = self.GNews_news_api.fetch_articles(user_input.category)
 
 			# Se enriquecen los artículos con información con scrapping adicional aca se pueden agregar más funciones
 			scraper = ArticleScraper(articles)
