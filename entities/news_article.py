@@ -20,7 +20,7 @@ class NewsArticle:
     def get_article_preview_md(self, limit: int = 100):
         title = f"### {self.title}"
         subtitle = f"**Source:** {self.source} | **Date:** {self.date}"
-        return f"{title} \n {subtitle} \n {self.__get_summary_md__(limit=limit)}"
+        return f"{title} \n {subtitle} \n\n {self.__get_summary_md__(limit=limit)}"
 
     def get_article_full_md(self):
         subtitle = f"**Source:** {self.source} | **Date:** {self.date}"
@@ -126,7 +126,7 @@ class NYTArticle(NewsArticle):
         self.uri = uri
         self.word_count = word_count
 
-class CNNArticle(NewsArticle):
+class GnewsArticle(NewsArticle):
     def __init__(
         self,
         title: str,
@@ -139,11 +139,11 @@ class CNNArticle(NewsArticle):
     ):
         super().__init__(
             date=publishedAt, 
-            source="CNN News",
+            source="Gnews",
             title=title,
-            feature_image_url=None,
-            content=content,
-            summary=None,
+            feature_image_url=image,
+            content=content, 
+            summary=description,
             author=None,
             url=url    
         )

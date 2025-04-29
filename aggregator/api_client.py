@@ -1,6 +1,6 @@
 
 
-from entities.news_article import CNNArticle, NewsArticle, TheGuardianArticle, NYTArticle
+from entities.news_article import GnewsArticle, NewsArticle, TheGuardianArticle, NYTArticle
 from entities.user_input import UserInput
 import requests
 
@@ -51,7 +51,7 @@ class APIClient:
         return [
             "All",
             "BBC News",
-            "CNN News",
+            "Gnews",
             "The Guardian",
             "New York Times",
         ]
@@ -73,7 +73,7 @@ class APIClient:
 # -BBCNews
 # -TheGuardian
 # -newyorktimes
-# -CNN
+# -Gnews
 class TheGuardianApi(APIClient):
 
     def fetch_articles(self, user_input: UserInput, page_size: int = 10) -> list[TheGuardianArticle]:
@@ -131,9 +131,9 @@ class BBCNewsApi(APIClient):
         # Implementar la lógica para obtener artículos de BBC News
         pass
 
-class CNNNewsApi(APIClient):
+class GnewsApi(APIClient):
 
-    def fetch_articles(self, user_input: UserInput, page_size: int = 10) -> list[CNNArticle]:
+    def fetch_articles(self, user_input: UserInput, page_size: int = 10) -> list[GnewsArticle]:
         """
         Fetches the latest news articles from The Guardian API.
 
@@ -142,7 +142,7 @@ class CNNNewsApi(APIClient):
             page_size (int, optional): The number of articles to fetch. Defaults to 10.
 
         Returns:
-            list[CNNArticle]: A list of CNNArticle objects.
+            list[GnewsArticle]: A list of GnewsArticle objects.
 
         Raises:
             requests.exceptions.HTTPError: If the API request fails.
@@ -165,7 +165,7 @@ class CNNNewsApi(APIClient):
 
             # create TheGuardianArticle objects
             print(response_json)
-            articles = [CNNArticle(**item) for item in response_json["articles"]]
+            articles = [GnewsArticle(**item) for item in response_json["articles"]]
 
             return articles
 

@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import streamlit as st
-from aggregator.api_client import APIClient, CNNNewsApi, TheGuardianApi
+from aggregator.api_client import APIClient, GnewsApi, TheGuardianApi
 from aggregator.scraper import ArticleScraper
 from aggregator.processor import NewsProcessor
 from aggregator.visualizer import NewsVisualizer
@@ -21,7 +21,7 @@ class AggregatorApp:
 			api_key="f6f96e89-7097-46c0-9266-5d2001202068",
 			base_url="https://content.guardianapis.com/",
 		)
-		self.cnn_news_api = CNNNewsApi(
+		self.gnews_news_api = GnewsApi(
 			api_key="83eb364c60aa9cad8a67cf93ca2bde9d",
 			base_url="https://gnews.io/api/v4/",
 		)
@@ -143,9 +143,9 @@ class AggregatorApp:
 			elif self.source_selected == "The Guardian":
 				articles = self.the_guardian_api.fetch_articles(user_input)
 
-			# cuando la fuente seleccionada es "CNN" se obtienen los artículos de la Gnews API 
-			elif self.source_selected == "CNN News":
-				articles = self.cnn_news_api.fetch_articles(user_input)
+			# cuando la fuente seleccionada es "Gnews" se obtienen los artículos de la Gnews API 
+			elif self.source_selected == "Gnews":
+				articles = self.gnews_news_api.fetch_articles(user_input)
 
 			# Se enriquecen los artículos con información con scrapping adicional aca se pueden agregar más funciones
 			scraper = ArticleScraper(articles)
