@@ -1,4 +1,5 @@
 from typing import Optional, Dict, Any
+from dataclasses import dataclass, fields
 
 class NewsArticle:
     def __init__(self, title: str, feature_image_url: str, content: Optional[str], summary: str, author: Optional[str], source: str, date: str, url: str):
@@ -91,7 +92,7 @@ class NYTArticle(NewsArticle):
         print_section,
         pub_date : str, # self explanatory
         section_name,
-        snippet, 
+        snippet,
         source : str, 
         subsection_name,
         type_of_material,
@@ -106,7 +107,7 @@ class NYTArticle(NewsArticle):
             content = None, 
             summary = abstract, 
             author = byline.get('original'), 
-            source = source, 
+            source = "New York Times", 
             date = pub_date, 
             url = web_url
         )
@@ -125,8 +126,44 @@ class NYTArticle(NewsArticle):
         self.type_of_material = type_of_material
         self.uri = uri
         self.word_count = word_count
+        self.main = self.headline.get('main')
+        self.kicker = self.headline.get('kicker')
+        
+class BBCArticle(NewsArticle):
+    def __init__(
+        self, 
+        uuid: str, 
+        title: str, 
+        description: str, 
+        url: str, 
+        image_url: str, 
+        published_at: str, 
+        source: str
+    ):
+        # Asegúrate de pasar todos los parámetros necesarios a NewsArticle
+        super().__init__(
+            title=title,
+            content=description,
+            summary=description,
+            author=None,  # Esto puede depender de tu implementación
+            source="BBC News",  # Puedes dejarlo fijo o hacerlo más dinámico
+            date=published_at,
+            url=url,
+            feature_image_url=image_url  # Aquí pasamos 'image_url' como 'feature_image_url'
+        )
+        self.uuid = uuid
+        self.source = source
+        self.image_url = image_url
 
-class GnewsArticle(NewsArticle):
+    @staticmethod
+    def from_dict(article: dict) -> "BBCArticle":
+        valid_fields = {
+            "uuid", "title", "description", "url", "image_url", "published_at", "source"
+        }
+        filtered = {k: article.get(k, "") for k in valid_fields}
+        return BBCArticle(**filtered)
+
+class GNewsArticle(NewsArticle):
     def __init__(
         self,
         title: str,
@@ -139,7 +176,7 @@ class GnewsArticle(NewsArticle):
     ):
         super().__init__(
             date=publishedAt, 
-            source="Gnews",
+            source="GNews",
             title=title,
             feature_image_url=image,
             content=content, 
