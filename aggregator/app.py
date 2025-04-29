@@ -101,8 +101,9 @@ class AggregatorApp:
 
 		# Se crean los contenedores para las visualizaciones
 		with st.container(border=True):
+			st.markdown("**Word cloud by category**")
 			plot = self.visualizer.word_cloud_plot(self.articles)
-			st.plotly_chart(plot, key="chart_2")
+			st.pyplot(plot)
 
 		# Se crean los contenedores para las visualizaciones
 		with st.container(border=True):
