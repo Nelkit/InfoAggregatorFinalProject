@@ -116,7 +116,10 @@ class BBCApi(APIClient):
                 "search": f"{user_input.source}, {user_input.category}",
                 "language": "en",
                 "limit": page_size
+                "pageSize": page_size,
             }
+            
+            response = requests.get("https://newsapi.org/v2/everything?", params=params)
 
             response = requests.get("https://api.thenewsapi.com/v1/news/all", params=params)
             response.raise_for_status()
@@ -127,10 +130,14 @@ class BBCApi(APIClient):
             import json
             print("📦 Respuesta de la API:")
             print(json.dumps(response_json, indent=2))
+            # Assuming you already have the response JSON object
+            articles_data = response_json.get("articles")  # Access the 'articles' key
 
             articles_data = response_json.get("data")
+            # Validate that 'articles' contains a list
             if not isinstance(articles_data, list):
                 print("⚠️ 'data' no es una lista válida.")
+                print("⚠️ 'articles' is not a valid list.")
                 return []
 
             articles = []
@@ -141,6 +148,21 @@ class BBCApi(APIClient):
                 except Exception as e:
                     print(f"⚠️ Error construyendo BBCArticle: {e}")
                     continue
+            # Create BBCArticle objects and store them
+            try:
+                # Assuming BBCArticle accepts dictionary unpacking (**item)
+                articles = [BBCArticle(**item) for item in articles_data]
+                
+                return articles
+            except Exception as e:
+                print(f"⚠️ Error constructing BBCArticle: {e}")
+                return []
+        
+
+        except requests.exceptions.RequestException as e:
+            raise requests.exceptions.HTTPError(f"Error fetching news: {e}")
+        except KeyError as e:
+            raise KeyError(f"Error parsing API response: {e}")
 
             return articles
         except requests.exceptions.RequestException as e:
@@ -150,6 +172,10 @@ class BBCApi(APIClient):
 
 class NYTNewsApi(APIClient):
     @st.cache_data
+
+
+class NYTNewsArticles(APIClient):
+    # override the fetch articles function
     def fetch_articles(
         _self,
         category: str,
