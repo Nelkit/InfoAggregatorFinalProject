@@ -11,7 +11,7 @@ class ArticleScraper:
         self.scrapers = {
             "The Guardian": self.scraping_guardian,
             "New York Times": self.scraping_nytimes,
-            "GNews": self.scraping_cnn,
+            "GNews": self.scraping_GNews,
             "BBC News": self.scraping_bbc
         }
 
@@ -70,9 +70,10 @@ class ArticleScraper:
             # "title" : title
         }        
 
-    def scraping_cnn(self, article: NewsArticle) -> dict:
-        # Realiza scraping de un artículo de CNN
-        response = requests.get(article.url)
+
+    def scraping_GNews(self, url: str) -> dict:
+        # Realiza scraping de un artículo de GNews
+        response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
         #print(url)
 

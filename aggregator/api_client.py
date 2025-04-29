@@ -1,4 +1,8 @@
-from entities.news_article import NewsArticle, TheGuardianArticle, BBCArticle, NYTArticle, CNNArticle
+
+from entities.news_article import GNewsArticle,BBCArticle, NewsArticle, TheGuardianArticle, NYTArticle
+from entities.user_input import UserInput
+import requests
+
 from entities.user_input import UserInput
 import requests
 from datetime import datetime
@@ -245,9 +249,9 @@ class GoogleSearchArticles(APIClient):
         except Exception as e:
             raise e
 
-class CNNNewsApi(APIClient):
+class GNewsApi(APIClient):
     @st.cache_data
-    def fetch_articles(_self, category: str, page_size: int = 10) -> list[CNNArticle]:
+    def fetch_articles(_self, category: str, page_size: int = 10) -> list[GNewsArticle]:
         """
         Fetches the latest news articles from The Guardian API.
 
@@ -256,7 +260,7 @@ class CNNNewsApi(APIClient):
             page_size (int, optional): The number of articles to fetch. Defaults to 10.
 
         Returns:
-            list[CNNArticle]: A list of CNNArticle objects.
+            list[GNewsArticle]: A list of GNewsArticle objects.
 
         Raises:
             requests.exceptions.HTTPError: If the API request fails.
@@ -273,11 +277,11 @@ class CNNNewsApi(APIClient):
 
             # Validate response structure
             if "articles" not in response_json:
-                raise KeyError("Unexpected response structure from GNEWS API.")
+                raise KeyError("Unexpected response structure from GNews API.")
 
             # create TheGuardianArticle objects
             print(response_json)
-            articles = [CNNArticle(**item) for item in response_json["articles"]]
+            articles = [GNewsArticle(**item) for item in response_json["articles"]]
 
             return articles
 

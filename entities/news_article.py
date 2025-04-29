@@ -21,7 +21,7 @@ class NewsArticle:
     def get_article_preview_md(self, limit: int = 100):
         title = f"### {self.title}"
         subtitle = f"**Source:** {self.source} | **Date:** {self.date}"
-        return f"{title} \n {subtitle} \n {self.__get_summary_md__(limit=limit)}"
+        return f"{title} \n {subtitle} \n\n {self.__get_summary_md__(limit=limit)}"
 
     def get_article_full_md(self):
         subtitle = f"**Source:** {self.source} | **Date:** {self.date}"
@@ -163,7 +163,7 @@ class BBCArticle(NewsArticle):
         filtered = {k: article.get(k, "") for k in valid_fields}
         return BBCArticle(**filtered)
 
-class CNNArticle(NewsArticle):
+class GNewsArticle(NewsArticle):
     def __init__(
         self,
         title: str,
@@ -178,9 +178,9 @@ class CNNArticle(NewsArticle):
             date=publishedAt, 
             source="GNews",
             title=title,
-            feature_image_url="",
-            content=content,
-            summary="",
+            feature_image_url=image,
+            content=content, 
+            summary=description,
             author=None,
             url=url    
         )
