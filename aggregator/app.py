@@ -68,10 +68,7 @@ class AggregatorApp:
 					if article.feature_image_url:
 						st.image(article.feature_image_url, caption=article.title)
 					st.markdown(article.get_article_full_md(), unsafe_allow_html=True)
-<<<<<<< Updated upstream
-=======
 					st.markdown(article.url)
->>>>>>> Stashed changes
 
 	''' Renderiza cada artículo en la sección de noticias más recientes '''
 

@@ -64,7 +64,8 @@ class TheGuardianApi(APIClient):
         Fetches the latest news articles from The Guardian API.
 
         Args:
-            user_input (UserInput): The user input containing category and source.
+            category (str): The category of news to fetch.
+            page_size (int, optional): The number of articles to fetch. Defaults to 10.
             page_size (int, optional): The number of articles to fetch. Defaults to 10.
 
         Returns:
@@ -108,108 +109,45 @@ class TheGuardianApi(APIClient):
             raise KeyError(f"Error parsing API response: {e}")
 
 class BBCApi(APIClient):
-
-
-    def fetch_articles(self, user_input: UserInput, page_size: int = 3) -> list[BBCArticle]:
+    def fetch_articles(self, category: str, page_size: int = 10) -> list[BBCArticle]:
         try:
             params = {
-                "api_token": self.api_key,
-                "search": f"{user_input.source}, {user_input.category}",
+                "apikey": self.api_key,
+                "category": category,
+                "source" : "bbc-news",
                 "language": "en",
-                "pageSize": page_size,
+                "pageSize": page_size
             }
             
             response = requests.get("https://newsapi.org/v2/everything?", params=params)
-
-            response = requests.get("https://api.thenewsapi.com/v1/news/all", params=params)
             response.raise_for_status()
 
             response_json = response.json()
 
             # Debug: imprimir la respuesta completa
-            import json
+
             # Assuming you already have the response JSON object
             articles_data = response_json.get("articles")  # Access the 'articles' key
 
+            articles_data = response_json.get("data")
             # Validate that 'articles' contains a list
             if not isinstance(articles_data, list):
+                print("⚠️ 'data' no es una lista válida.")
                 print("⚠️ 'articles' is not a valid list.")
                 return []
 
-            # Create BBCArticle objects and store them
+           
             try:
                 # Assuming BBCArticle accepts dictionary unpacking (**item)
                 articles = [BBCArticle(**item) for item in articles_data]
                 
                 return articles
-            except Exception as e:
-                print(f"⚠️ Error constructing BBCArticle: {e}")
-                return []
-        
-
+ 
         except requests.exceptions.RequestException as e:
             raise requests.exceptions.HTTPError(f"Error fetching news: {e}")
         except KeyError as e:
             raise KeyError(f"Error parsing API response: {e}")
 
-            return articles
-        except requests.exceptions.RequestException as e:
-            raise requests.exceptions.HTTPError(f"Error fetching news: {e}")
-        except KeyError as e:
-            raise KeyError(f"Error parsing API response: {e}")
-
-
-
-class NYTNewsArticles(APIClient):
-    # override the fetch articles function
-    def fetch_articles(
-        _self,
-        category: str,
-    ) -> list[NYTArticle]:
-        """
-        Fetches the lastests news articles from the NYT
-        The API endpoint is the following: https://api.nytimes.com/svc/search/v2/articlesearch.json
-        
-        Args:
-        - User input: class that contains the selected news source and category
-        
-        Returns:
-        - List: list of 10 articles from the NYT
-        
-        Raises:
-        - requests.exceptions.HTTPError: If the API request fails
-        - KeyError: If the response JSON is missing "response" or "docs" in "response".
-        """
-        parameters = {
-            "api-key" : _self.api_key,
-            "q" : category, # what are the articles about?
-            "sort" : "best", # available options: best (default), newest, oldest, relevance
-            "begin_date" : "20200101", # format (YYYYMMDD)
-            "end_date" : datetime.today().strftime("%Y%m%d"),
-            # "page" : 1, # optional parameter
-            "fq" : 'type:("Article")' # special parameters that allows granular filters
-            # types of fields can be found in https://developer.nytimes.com/docs/articlesearch-product/1/overview
-        }
-        headers = {
-            "Accept" : "application/json"
-        }
-        try:
-            response = requests.get(
-                url = f"{_self.base_url}articlesearch.json",
-                params = parameters,
-                headers = headers
-            )
-            response.raise_for_status()
-            response_json = response.json()
-            # Validate response structure
-            if "response" not in response_json or "docs" not in response_json["response"]:
-                raise KeyError("Unexpected response structure from The NYT API.")
-            articles = [NYTArticle(**art) for art in response_json["response"]["docs"]]
-            return articles
-        except requests.exceptions.RequestException as e:
-            raise requests.exceptions.HTTPError(f"Error fetching news: {e}")
-        except KeyError as e:
-            raise KeyError(f"Error parsing API response: {e}")
 
 class GoogleSearchArticles(APIClient):
     """
@@ -252,7 +190,7 @@ class GoogleSearchArticles(APIClient):
             # list that has all the results related to the query
             google_results = response_json['orginic_results']
             # filtered only the results that are accesible
-            filtered_results = list(filter(lambda r: requests.get(r.get('link')).status_code == 200, google_results))
+            google_results = response_json['organic_results']
             if len(filtered_results) == 0:
                 raise Exception(f"There are no available links for the criteria '{search_criteria}'")
             # changing the original attribute
