@@ -162,8 +162,6 @@ class BBCArticle(NewsArticle):
         }
         filtered = {k: article.get(k, "") for k in valid_fields}
         return BBCArticle(**filtered)
-<<<<<<< Updated upstream
-=======
 
 class GNewsArticle(NewsArticle):
     def __init__(
@@ -196,4 +194,3 @@ class GNewsArticle(NewsArticle):
 
     def __repr__(self):
         return f"{self.__class__.__name__}(title={self.title!r}, date={self.date!r})"
->>>>>>> Stashed changes

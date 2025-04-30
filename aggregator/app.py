@@ -18,8 +18,8 @@ class AggregatorApp:
 			base_url="https://content.guardianapis.com/",
 		)
 		self.bbc_api = BBCApi(
-			api_key="2HGE4su9OzsdXp4GMbJ1Hb2PpWt9ZFWsLud7QFVC",
-			base_url="https://api.thenewsapi.com/v1/news/all?"
+			api_key="bb59763f972342a28391325a180928c3",
+			base_url="https://newsapi.org/v2/top-headlines/"
 		)
 		self.nyt_api = NYTNewsApi(
 			api_key="zv2dhOM3UJMipTtusff6f1dD3GSxnEXe",
@@ -149,15 +149,10 @@ class AggregatorApp:
 			# cuando la fuente seleccionada es "All" se obtienen los artículos de ambas APIs
 			if self.source_selected == "All":
 				theguarding_articles = self.the_guardian_api.fetch_articles(category=user_input.category)
-				bbc_articles = self.bbc_api.fetch_articles(category=user_input.category, source=user_input.source)
+				bbc_articles = self.bbc_api.fetch_articles(category=user_input.category)
 				#cnn_articles = self.cnn_news_api.fetch_articles(category=user_input.category)
 				nyt_articles = self.nyt_api.fetch_articles(category=user_input.category)
-				articles = (
-						theguarding_articles +
-						bbc_articles +
-						#cnn_articles +
-						nyt_articles
-				)
+
 
 			# cuando la fuente seleccionada es "The Guardian" se obtienen los artículos de la API de noticias
 			elif self.source_selected == "The Guardian":

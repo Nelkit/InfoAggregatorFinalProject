@@ -1,13 +1,6 @@
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-from entities.news_article import NewsArticle
-=======
-from entities.news_article import NewsArticle, NYTArticle
->>>>>>> Stashed changes
-=======
+
 from entities.news_article import NewsArticle
 from entities.news_article import NewsArticle, NYTArticle
->>>>>>> Stashed changes
 from bs4 import BeautifulSoup
 import requests
 
@@ -20,17 +13,10 @@ class ArticleScraper:
         self.scrapers = {
             "The Guardian": self.scraping_guardian,
             "New York Times": self.scraping_nytimes,
-<<<<<<< Updated upstream
             "CNN News": self.scraping_cnn,
-<<<<<<< Updated upstream
-=======
             "GNews": self.scraping_GNews,
->>>>>>> Stashed changes
             "BBC News": self.scraping_bbc
-=======
-            "GNews": self.scraping_GNews,
-            "BBC News (bbc-news)": self.scraping_bbc
->>>>>>> Stashed changes
+
         }
 
     def enrich_articles(self):
@@ -42,16 +28,9 @@ class ArticleScraper:
             if scraper:
                 try:
                     # Ejecuta la función de scraping para obtener los datos enriquecidos
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-                    enriched_data = scraper(article.url)
-=======
+
                     enriched_data = scraper(article)
->>>>>>> Stashed changes
-=======
-                    enriched_data = scraper(article.url)
-                    enriched_data = scraper(article)
->>>>>>> Stashed changes
+
 
                     # Asigna cada dato enriquecido al atributo correspondiente del artículo
                     for key, value in enriched_data.items():
@@ -108,23 +87,10 @@ class ArticleScraper:
 
         }
 
-    def scraping_bbc(self, url: str) -> dict:
-        # Realiza scraping de un artículo de BBC
-<<<<<<< Updated upstream
-        response = requests.get(url)
-        soup = BeautifulSoup(response.content, 'html.parser')
-        print(url)
-
-        # Extrae el contenido del artículo: adaptenlo según la estructura real de la página
-        return {
-
-<<<<<<< Updated upstream
-        }
 
     def scraping_cnn(self, url: str) -> dict:
         # Realiza scraping de un artículo de CNN
-=======
->>>>>>> Stashed changes
+
         response = requests.get(url)
         soup = BeautifulSoup(response.content, 'html.parser')
         print(url)
@@ -132,61 +98,45 @@ class ArticleScraper:
         # Extrae el contenido del artículo: adaptenlo según la estructura real de la página
         return {
 
-        }
+    
+            }
+    def scraping_bbc(self, article: NewsArticle) -> dict:
+        try:
+            # Send a GET request with the headers to avoid getting blocked
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+            response = requests.get(article.url, headers=headers)
+            response.raise_for_status()
 
-<<<<<<< Updated upstream
-    def scraping_bbc(self, url: str) -> dict:
-        # Realiza scraping de un artículo de BBC
-=======
-    def scraping_cnn(self, url: str) -> dict:
-        # Realiza scraping de un artículo de CNN
->>>>>>> Stashed changes
-        response = requests.get(url)
-        soup = BeautifulSoup(response.content, 'html.parser')
-        print(url)
+            # Parse the page with BeautifulSoup
+            soup = BeautifulSoup(response.content, "html.parser")
 
-        # Extrae el contenido del artículo: adaptenlo según la estructura real de la página
-        return {
+            # Extract title from meta tags or title tag
+            title = soup.find("meta", property="og:title") or soup.find("title")
+            title_text = title["content"] if title else "No title found"
 
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
-        }
-=======
-        }
+            # Extract description from meta tags
+            description = soup.find("meta", property="og:description") or soup.find("meta", name="description")
+            description_text = description["content"] if description else "No description found"
 
-    def scraping_bbc(self, url: str) -> dict:
-        print(f"Starting BBC scraping for URL: {url}")
-        
+            # Extract image URL from meta tags
+            image = soup.find("meta", property="og:image")
+            image_url = image["content"] if image else "No image found"
 
-        response = requests.get(url)
-        print(f"Response status: {response.status_code}")
-            
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, 'html.parser')
-                
-                # Extract content
-            content_blocks = soup.find_all(['p', 'h2'], class_=['ssrcss-1q0x1qg-Paragraph', 'ssrcss-1f3bvyz-StyledHeading'])
-            content = "\n".join([block.get_text().strip() for block in content_blocks])
-            print(f"Content found: {bool(content)}")
-                
-                # Extract image
-            image_url = None
-            image_element = soup.find('img', class_='ssrcss-evoj7m-Image')
-            if image_element and image_element.get('src'):
-                    image_url = image_element.get('src')
-                    print(f"Found image with class: {image_url}")
-            else:
-                    image_tag = soup.find('img')
-                    if image_tag and image_tag.get('src'):
-                        image_url = image_tag['src']
-                        print(f"Found generic image: {image_url}")
-                    else:
-                        print("No image found")
-                
+            # Extract article body (look for div with the text-block component)
+            body = soup.find("div", {"data-component": "text-block"})
+            paragraphs = body.find_all("p") if body else []
+            body_text = "\n".join([p.get_text() for p in paragraphs])
+
+            # Return the scraped data as a dictionary
             return {
-                    "content": content,
-                    "feature_image_url": image_url
-                }
-            
->>>>>>> Stashed changes
+                "title": title_text,
+                "description": description_text,
+                "image_url": image_url,
+                "body": body_text
+            }
+
+        except Exception as e:
+            # Return empty dictionary in case of an error
+            return {}
