@@ -1,6 +1,6 @@
 
 from entities.news_article import NewsArticle
-from entities.news_article import NewsArticle, NYTArticle
+from entities.news_article import NewsArticle, NYTArticle,BBCArticle
 from bs4 import BeautifulSoup
 import requests
 
@@ -20,32 +20,31 @@ class ArticleScraper:
         }
 
     def enrich_articles(self):
-        # Itera sobre todos los artículos agregados
         for article in self.articles:
-            # Obtiene la función de scraping según la fuente del artículo
+            # Try to find a scraper for the article's source
             scraper = self.scrapers.get(article.source)
-
+            
+            # If a scraper is available for the article's source
             if scraper:
                 try:
-                    # Ejecuta la función de scraping para obtener los datos enriquecidos
-
+                    # Execute the scraper function to get enriched data
                     enriched_data = scraper(article)
 
-
-                    # Asigna cada dato enriquecido al atributo correspondiente del artículo
+                    # Assign each enriched data value to the corresponding article attribute
                     for key, value in enriched_data.items():
                         setattr(article, key, value)
+
                 except Exception as e:
-                    # En caso de error en la solicitud o parsing, se muestra el mensaje
+                    # Handle any errors during the scraping process
                     print(f"Error scraping {article.source} ({article.url}): {e}")
             else:
-                # Si no hay scraper definido para esa fuente, se muestra advertencia
+                # If no scraper is available for the article's source, print a warning
                 print(f"No scraper available for source: {article.source}")
 
     def get_enriched_articles(self) -> list[NewsArticle]:
-        # Devuelve la lista de artículos enriquecidos
+        # Return the list of enriched articles
         return self.articles
-
+    
     def scraping_guardian(self, article: NewsArticle) -> dict:
         # Realiza scraping de un artículo de The Guardian
         response = requests.get(article.url)
@@ -102,17 +101,15 @@ class ArticleScraper:
             }
     def scraping_bbc(self, article: NewsArticle) -> dict:
         try:
-            # Send a GET request with the headers to avoid getting blocked
             headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
             }
             response = requests.get(article.url, headers=headers)
             response.raise_for_status()
 
-            # Parse the page with BeautifulSoup
             soup = BeautifulSoup(response.content, "html.parser")
 
-            # Extract title from meta tags or title tag
+            # Extract meta info
             title = soup.find("meta", property="og:title") or soup.find("title")
             title_text = title["content"] if title else "No title found"
 
@@ -128,15 +125,19 @@ class ArticleScraper:
             body = soup.find("div", {"data-component": "text-block"})
             paragraphs = body.find_all("p") if body else []
             body_text = "\n".join([p.get_text() for p in paragraphs])
-
-            # Return the scraped data as a dictionary
+            
             return {
                 "title": title_text,
                 "description": description_text,
                 "image_url": image_url,
-                "body": body_text
+                "body": body_text  # Add this to pass to BBCArticle
             }
 
-        except Exception as e:
-            # Return empty dictionary in case of an error
-            return {}
+        except requests.RequestException as e:
+            print(f"Error fetching BBC article: {e}")
+            return {
+                "title": None,
+                "description": None,
+                "image_url": None,
+                "body": None
+            }

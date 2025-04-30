@@ -149,7 +149,7 @@ class AggregatorApp:
 			# cuando la fuente seleccionada es "All" se obtienen los artículos de ambas APIs
 			if self.source_selected == "All":
 				theguarding_articles = self.the_guardian_api.fetch_articles(category=user_input.category)
-				bbc_articles = self.bbc_api.fetch_articles(category=user_input.category)
+				bbc_articles = self.bbc_api.fetch_articles(category=user_input.category,source=user_input.source)
 				#cnn_articles = self.cnn_news_api.fetch_articles(category=user_input.category)
 				nyt_articles = self.nyt_api.fetch_articles(category=user_input.category)
 
@@ -159,7 +159,7 @@ class AggregatorApp:
 				articles = self.the_guardian_api.fetch_articles(user_input.category)
 
 			elif self.source_selected == "BBC News":
-				articles = self.bbc_api.fetch_articles(user_input.source, user_input.category)
+				articles = self.bbc_api.fetch_articles(user_input.category, source=user_input.source)
 
 			elif self.source_selected == "New York Times":
 				articles = self.nyt_api.fetch_articles(user_input.category)

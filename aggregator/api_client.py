@@ -116,7 +116,7 @@ class BBCApi(APIClient):
             
             params = {
                 "apiKey": self.api_key,
-                "q": source,      # 'science'
+                "q": category,      # 'science'
                 "language": "en",
                 "pageSize": 10,                # Número entero
                 "sources": "bbc-news"   # 'bbc-news'
@@ -133,7 +133,8 @@ class BBCApi(APIClient):
 
             if "articles" not in response_json:
                 raise KeyError("Unexpected response structure from NewsAPI.org.")
-
+            import pprint
+            pprint.pprint(response_json["articles"][0])
             articles_data = response_json["articles"]
 
             articles = []
