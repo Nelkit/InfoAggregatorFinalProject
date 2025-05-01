@@ -13,7 +13,7 @@ class APIClient:
         self.api_key = api_key            # Clave de acceso a la API
         self.base_url = base_url          # URL base de la API
 
-    def fetch_articles(self, user_input: UserInput) -> list[NewsArticle]:
+    def fetch_articles(self, source: str, category:str) -> list[NewsArticle]:
 
         # Simulación de artículos
         news = []
