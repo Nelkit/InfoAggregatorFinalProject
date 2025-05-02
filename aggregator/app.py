@@ -18,14 +18,16 @@ class AggregatorApp:
 			base_url="https://content.guardianapis.com/",
 		)
 		self.bbc_api = BBCApi(
-			api_key="2HGE4su9OzsdXp4GMbJ1Hb2PpWt9ZFWsLud7QFVC",
-			base_url="https://api.thenewsapi.com/v1/"
+			api_key="bb59763f972342a28391325a180928c3",
+			base_url="https://newsapi.org/v2/top-headlines/"
+
 		)
 		self.nyt_api = NYTNewsApi(
 			api_key="zv2dhOM3UJMipTtusff6f1dD3GSxnEXe",
 			base_url="https://api.nytimes.com/svc/search/v2/"
 		)
 		self.gnews_api = GNewsApi(
+
 			api_key="83eb364c60aa9cad8a67cf93ca2bde9d",
 			base_url="https://GNews.io/api/v4/",
 		)
@@ -101,12 +103,12 @@ class AggregatorApp:
 
 		with st.container(border=True):
 			with col1:
-				st.markdown("**Source distribution chart**")
+				st.markdown("**Source Distribution Chart**")
 				plot = self.visualizer.source_distribution_plot(self.articles)
 				st.pyplot(plot)
 
 			with col2:
-				st.markdown("**Word cloud by category**")
+				st.markdown("**Word Cloud by Category**")
 				plot = self.visualizer.word_cloud_plot(self.articles)
 				st.pyplot(plot)
 
@@ -119,9 +121,7 @@ class AggregatorApp:
 				st.plotly_chart(plot, key="chart_4")
 
 
-
 	''' Renderiza el pie de página con el estado y la última actualización '''
-
 	def render_footer(self):
 		col1, col2 = st.columns(2)
 		source = self.source_selected
@@ -137,7 +137,6 @@ class AggregatorApp:
 			st.markdown(col2_text, unsafe_allow_html=True)
 
 	''' Renderiza la aplicación principal '''
-
 	def run(self):
 		st.set_page_config(page_title="News Aggregator", layout="wide")
 		st.title("News Aggregator")
@@ -175,6 +174,7 @@ class AggregatorApp:
 
 			elif self.source_selected == "GNews":
 				articles = self.gnews_api.fetch_articles(user_input.category)
+
 
 			# Se enriquecen los artículos con información con scrapping adicional aca se pueden agregar más funciones
 			scraper = ArticleScraper(articles)
