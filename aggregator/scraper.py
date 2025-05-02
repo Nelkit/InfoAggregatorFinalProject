@@ -52,23 +52,31 @@ class ArticleScraper:
             #"feature_image_url": "",
         }
 
-    def scraping_nytimes(self, article: NewsArticle) -> dict:
+    def scraping_nytimes(self, article: NYTArticle) -> dict:
         response = requests.get(article.url)
         soup = BeautifulSoup(response.content, 'html.parser')
-        # getting the content
-        article_tag = soup.find('article')
-        if article_tag:
-            content = ' '.join(p.text.strip() for p in article_tag.find_all('p'))
-        else:
-            # Fallback to all <p> tags
-            content = ' '.join(p.text.strip() for p in soup.find_all('p'))
-        # getting the title
-        if soup.title and soup.title.text:
-            title = soup.title.text.title().strip() # needs verification before adding it
-        return {
-            "content" : content,
-            # "title" : title
-        }        
+        # creating a dictionary that contains the neccessary information from the article
+        scrapping_results = {}
+        # scrapping the author
+        if article.author is None or article.author == '':
+            scrapping_results["author"] = ' '.join([a.text.strip().title() for a in soup.find_all(attrs = {"itemprop" : "name"})])
+        # scrapping the content
+        if article.content is None or article.content == '':
+            article_tag = soup.find('article')
+            if article_tag:
+                scrapping_results['content'] = ' '.join(p.text.strip() for p in article_tag.find_all('p'))
+            else:
+                scrapping_results['content'] = ' '.join(p.text.strip() for p in soup.find_all('p'))
+        # scrappting title
+        if article.title is None or article.title == '':
+            if article.main != '':
+                scrapping_results['title'] = article.main
+            else:
+                scrapping_results['title'] = soup.find('h1', attrs = {'data-testid' : 'headline'}).text.strip()
+        # scrapping images
+        if article.feature_image_url is None or article.feature_image_url == '':
+            scrapping_results['feature_image_url'] = soup.find('img').get('src')
+        return scrapping_results      
 
 
     def scraping_GNews(self, url: str) -> dict:
