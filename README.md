@@ -31,12 +31,21 @@ List of dependencies and prerequisites needed to run the project.
    pip install -r requirements.txt
    ```
 
-## Running the Project
-1. Ensure the virtual environment is activated (if used).
+## 🐍 Running the Project
+1. Ensure the virtual environment is activated.
 2. Run the script or application:
 ```sh
    streamlit run main.py
 ```
+
+## 🧪 Running the Test Suite
+1. Ensure the virtual environment is activated.
+2. Run the script or application:
+```sh
+   python run_tests.py
+```
+
+
 
 
 

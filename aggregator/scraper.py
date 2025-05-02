@@ -15,6 +15,8 @@ class ArticleScraper:
             "BBC News": self.scraping_bbc
         }
 
+        self.enrich_articles()
+
     def enrich_articles(self):
         # Itera sobre todos los artículos agregados
         for article in self.articles:
