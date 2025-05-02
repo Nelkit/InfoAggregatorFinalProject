@@ -178,7 +178,6 @@ class AggregatorApp:
 
 			# Se enriquecen los artículos con información con scrapping adicional aca se pueden agregar más funciones
 			scraper = ArticleScraper(articles)
-			self.articles = scraper.enrich_articles()
 			self.articles = scraper.get_enriched_articles()
 
 			# Se llama las funciones de renderizado para cada pestaña
