@@ -25,7 +25,7 @@ class AggregatorApp:
 			api_key="zv2dhOM3UJMipTtusff6f1dD3GSxnEXe",
 			base_url="https://api.nytimes.com/svc/search/v2/"
 		)
-		self.GNews_news_api = GNewsApi(
+		self.gnews_api = GNewsApi(
 			api_key="83eb364c60aa9cad8a67cf93ca2bde9d",
 			base_url="https://GNews.io/api/v4/",
 		)
@@ -87,33 +87,37 @@ class AggregatorApp:
 	''' Renderiza la sección de noticias más recientes '''
 
 	def render_latest_news(self):
+		st.subheader("Latest News")
 		for article in self.articles:
 			self.render_article(article)
 
 	''' Renderiza la sección de visualizaciones de datos '''
 
 	def render_visualizations(self):
-		st.subheader("Visualizaciones de Datos")
+		st.subheader("Data Visualizations")
+
+		col1, col2 = st.columns(2)
+		col3, col4 = st.columns(2)
 
 		with st.container(border=True):
-			plot = self.visualizer.source_distribution_plot(self.articles)
-			st.plotly_chart(plot, key="chart_1")
+			with col1:
+				st.markdown("**Source distribution chart**")
+				plot = self.visualizer.source_distribution_plot(self.articles)
+				st.pyplot(plot)
 
-		# Se crean los contenedores para las visualizaciones
-		with st.container(border=True):
-			st.markdown("**Word cloud by category**")
-			plot = self.visualizer.word_cloud_plot(self.articles)
-			st.pyplot(plot)
+			with col2:
+				st.markdown("**Word cloud by category**")
+				plot = self.visualizer.word_cloud_plot(self.articles)
+				st.pyplot(plot)
 
-		# Se crean los contenedores para las visualizaciones
-		with st.container(border=True):
-			plot = self.visualizer.articles_by_day_plot(self.articles)
-			st.plotly_chart(plot, key="chart_3")
+			with col3:
+				plot = self.visualizer.articles_by_day_plot(self.articles)
+				st.plotly_chart(plot, key="chart_3")
 
-		# Se crean los contenedores para las visualizaciones
-		with st.container(border=True):
-			plot = self.visualizer.number_of_words_plot(self.articles)
-			st.plotly_chart(plot, key="chart_4")
+			with col4:
+				plot = self.visualizer.number_of_words_plot(self.articles)
+				st.plotly_chart(plot, key="chart_4")
+
 
 
 	''' Renderiza el pie de página con el estado y la última actualización '''
@@ -141,7 +145,7 @@ class AggregatorApp:
 		self.render_sidebar()
 
 		# se crean las pestañas para las noticias más recientes y la visualización
-		tab1, tab2 = st.tabs(["📈 Visualization", "📰 Latest News"])
+		tab1, tab2 = st.tabs(["📰 Latest News", "📈 Visualization"])
 		user_input = UserInput(category=self.category_selected, source=self.source_selected)
 		# Se obtienen los artículos de la API
 		articles = []
@@ -150,12 +154,12 @@ class AggregatorApp:
 			if self.source_selected == "All":
 				theguarding_articles = self.the_guardian_api.fetch_articles(category=user_input.category)
 				#bbc_articles = self.bbc_api.fetch_articles(category=user_input.category, source=user_input.source)
-				#cnn_articles = self.cnn_news_api.fetch_articles(category=user_input.category)
+				#gnews_articles = self.gnews_api.fetch_articles(category=user_input.category)
 				nyt_articles = self.nyt_api.fetch_articles(category=user_input.category)
 				articles = (
 						theguarding_articles +
 						#bbc_articles +
-						#cnn_articles +
+						#gnews_articles +
 						nyt_articles
 				)
 
@@ -170,7 +174,7 @@ class AggregatorApp:
 				articles = self.nyt_api.fetch_articles(user_input.category)
 
 			elif self.source_selected == "GNews":
-				articles = self.GNews_news_api.fetch_articles(user_input.category)
+				articles = self.gnews_api.fetch_articles(user_input.category)
 
 			# Se enriquecen los artículos con información con scrapping adicional aca se pueden agregar más funciones
 			scraper = ArticleScraper(articles)
@@ -179,10 +183,11 @@ class AggregatorApp:
 
 			# Se llama las funciones de renderizado para cada pestaña
 			with tab1:
-				self.render_visualizations()
+				self.render_latest_news()
 
 			with tab2:
-				self.render_latest_news()
+				self.render_visualizations()
+
 
 		# Se llama a la función de renderizado del pie de página
 		self.render_footer()

@@ -1,7 +1,6 @@
 import plotly.express as px
 from datetime import datetime
 import pandas as pd
-import matplotlib.pyplot as plt
 import seaborn as sns
 from entities.news_article import NewsArticle
 from wordcloud import WordCloud
@@ -30,7 +29,7 @@ class NewsVisualizer:
             else:
                 source_counter[s] = 1
         df = pd.DataFrame(data = zip(source_counter.keys(), source_counter.values()), columns = ['source', 'total articles']).sort_values(by = 'total articles', ascending=False)
-        fig, _ = plt.subplots(figsize = (10, 8))
+        fig, _ = plt.subplots(figsize = (10, 6))
         sns.despine(fig)
         sns.barplot(
             data = df,
@@ -63,10 +62,9 @@ class NewsVisualizer:
 
         # Unique words found
         unique_words = len(wordcloud.words_)
-        print(f"Unique words detected: {unique_words}")
 
         if unique_words < 3:
-            st.warning("No hay suficientes palabras únicas para generar una nube de palabras significativa.")
+            st.warning("Not enough unique words to generate a meaningful word cloud.")
             return None
 
         # Crete graph
@@ -86,7 +84,6 @@ class NewsVisualizer:
         day_counts = days_series.value_counts()
         df = day_counts.reset_index()
         df.columns = ['day', 'count']
-        print(df)
 
         fig = px.scatter(df, x='day', y='count', title='Articles Count by Day of the Month', size='count')
         fig.update_xaxes(dtick=2)
