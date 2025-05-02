@@ -91,12 +91,44 @@ class ArticleScraper:
         }
 
     def scraping_bbc(self, article: NewsArticle) -> dict:
-        # Realiza scraping de un artículo de BBC
-        response = requests.get(article.url)
-        soup = BeautifulSoup(response.content, 'html.parser')
-        #print(url)
+        try:
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+            response = requests.get(article.url, headers=headers)
+            response.raise_for_status()
 
-        # Extrae el contenido del artículo: adaptenlo según la estructura real de la página
-        return {
+            soup = BeautifulSoup(response.content, "html.parser")
 
-        }
+            # Extract meta info
+            title = soup.find("meta", property="og:title") or soup.find("title")
+            title_text = title["content"] if title else "No title found"
+
+            # Extract description from meta tags
+            description = soup.find("meta", property="og:description") or soup.find("meta", name="description")
+            description_text = description["content"] if description else "No description found"
+
+            # Extract image URL from meta tags
+            image = soup.find("meta", property="og:image")
+            image_url = image["content"] if image else "No image found"
+
+            # Extract article body (look for div with the text-block component)
+            body = soup.find("div", {"data-component": "text-block"})
+            paragraphs = body.find_all("p") if body else []
+            body_text = "\n".join([p.get_text() for p in paragraphs])
+
+            return {
+                "title": title_text,
+                "description": description_text,
+                "image_url": image_url,
+                "body": body_text  # Add this to pass to BBCArticle
+            }
+
+        except requests.RequestException as e:
+            print(f"Error fetching BBC article: {e}")
+            return {
+                "title": None,
+                "description": None,
+                "image_url": None,
+                "body": None
+            }

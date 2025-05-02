@@ -92,5 +92,5 @@ class NewsVisualizer:
     # 4. Numero de palabras por artículo
     def number_of_words_plot(self, articles):
         df = [{"source": "source1", "count": 10}, {"source": "source2", "count": 20}]
-        fig = px.bar(df, x='source', title="Number of words per article")
+        fig = px.bar(df, x='source', title="Number of Words per Article")
         return fig
