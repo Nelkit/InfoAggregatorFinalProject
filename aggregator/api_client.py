@@ -126,7 +126,6 @@ class BBCApi(APIClient):
             # Debug: imprimir la respuesta completa
             import json
             print("📦 Respuesta de la API:")
-            print(json.dumps(response_json, indent=2))
 
             articles_data = response_json.get("data")
             if not isinstance(articles_data, list):
@@ -280,7 +279,6 @@ class GNewsApi(APIClient):
                 raise KeyError("Unexpected response structure from GNews API.")
 
             # create TheGuardianArticle objects
-            print(response_json)
             articles = [GNewsArticle(**item) for item in response_json["articles"]]
 
             return articles
