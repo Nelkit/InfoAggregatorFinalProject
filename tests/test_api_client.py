@@ -37,7 +37,63 @@ class TestAPIClient(unittest.TestCase):
     def test_fetch_articles_sucess_nty(self, mock_get):
         mock_response = MagicMock()
         mock_response.json.return_value = {
-            
+            "status": "OK",
+            "copyright": "Copyright (c) 2025 The New York Times Company. All Rights Reserved.",
+            "response": {
+                "docs": [
+                    {
+                        "abstract": "Extreme weather events",
+                        "byline": {
+                            "original": "By David Gelles and Austyn Gaffney"
+                        },
+                        "document_type": "article",
+                        "headline": {
+                            "main": "How Climate Change Is Supercharging Disasters",
+                            "kicker": "",
+                            "print_headline": "How Climate Change Is Supercharging Disasters"
+                        },
+                        "_id": "nyt://article/a09b3cd3-63b9-5df7-8563-a88bde75361f",
+                        "keywords": [
+                            {
+                                "name": "Subject",
+                                "value": "Wildfires",
+                                "rank": 1
+                            }
+                        ],
+                        "multimedia": {
+                            "caption": "By Friday, the fires in California had consumed more than 30,000 acres and destroyed thousands of buildings.",
+                            "credit": "Ariana Drehsler for The New York Times",
+                            "default": {
+                                "url": "https://static01.nyt.com/images/2025/01/10/multimedia/00CLI-LAFIRE-CLIMATE-sub-hkvw/00CLI-LAFIRE-CLIMATE-sub-hkvw-articleLarge.jpg",
+                                "height": 400,
+                                "width": 600
+                            },
+                            "thumbnail": {
+                                "url": "https://static01.nyt.com/images/2025/01/10/multimedia/00CLI-LAFIRE-CLIMATE-sub-hkvw/00CLI-LAFIRE-CLIMATE-sub-hkvw-thumbStandard.jpg",
+                                "height": 75,
+                                "width": 75
+                            }
+                        },
+                        "news_desk": "Climate",
+                        "print_page": "1",
+                        "print_section": "A",
+                        "pub_date": "2025-01-10T19:54:24Z",
+                        "section_name": "Climate",
+                        "snippet": "Extreme weather events deadly heat waves, floods, fires and hurricanes",
+                        "source": "The New York Times",
+                        "subsection_name": "",
+                        "type_of_material": "News",
+                        "uri": "nyt://article/a09b3cd3-63b9-5df7-8563-a88bde75361f",
+                        "web_url": "https://www.nytimes.com/2025/01/10/climate/california-fires-climate-change-disasters.html",
+                        "word_count": 1609
+                    }
+                ],
+                "metadata": {
+                    "hits": 10000,
+                    "offset": 0,
+                    "time": 154
+                }
+            }
         }
         mock_response.status_code = 200
         mock_response.raise_for_status = MagicMock()
@@ -50,7 +106,7 @@ class TestAPIClient(unittest.TestCase):
         self.assertIsInstance(articles, list)
         self.assertEqual(len(articles), 1)
         self.assertIsInstance(articles[0], NYTArticle)
-        self.assertEqual(articles[0].title, "NYT Sample Article")
+        self.assertEqual(articles[0].title, "How Climate Change Is Supercharging Disasters")
 
     @patch("aggregator.api_client.requests.get")
     def test_fetch_articles_success(self, mock_get):
