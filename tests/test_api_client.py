@@ -28,13 +28,9 @@ class TestAPIClient(unittest.TestCase):
     def test_fetch_categories_returns_expected_list(self):
         expected = ["Technology", "World", "Business", "Politics", "Science", "Culture"]
         self.assertEqual(self.client.fetch_categories(), expected)
-
-    #TODO Repetir estas tres pruebas para cada API
-    # - BBCApi
-    # - NYTNewsApi
-    # - GNewsApi
+    
     @patch("aggregator.api_client.requests.get")
-    def test_fetch_articles_sucess_nty(self, mock_get):
+    def test_fetch_articles_sucess_NYT(self, mock_get):
         mock_response = MagicMock()
         mock_response.json.return_value = {
             "status": "OK",
@@ -100,14 +96,37 @@ class TestAPIClient(unittest.TestCase):
         mock_get.return_value = mock_response
         # Run method
         articles = self.nyt_api.fetch_articles(
-            category="Technology",
+            category="Climate",
         )
         # Assertions
         self.assertIsInstance(articles, list)
         self.assertEqual(len(articles), 1)
         self.assertIsInstance(articles[0], NYTArticle)
         self.assertEqual(articles[0].title, "How Climate Change Is Supercharging Disasters")
+    
+    @patch("aggregator.api_client.requests.get")
+    def test_fetch_articles_bad_response_NYT(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("Bad request")
+        mock_get.return_value = mock_response
 
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.nyt_api.fetch_articles(category="Technology")
+    
+    @patch("aggregator.api_client.requests.get")
+    def test_fetch_articles_invalid_json_structure_NYT(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status = MagicMock()
+        mock_response.json.return_value = {}  # Missing expected keys
+        mock_get.return_value = mock_response
+
+        with self.assertRaises(KeyError):
+            self.nyt_api.fetch_articles(category="Technology")
+
+    #TODO Repetir estas tres pruebas para cada API
+    # - BBCApi
+    # - NYTNewsApi
+    # - GNewsApi
     @patch("aggregator.api_client.requests.get")
     def test_fetch_articles_success(self, mock_get):
         # Mocking the API response JSON
