@@ -2,10 +2,10 @@ import unittest
 
 import requests
 
-from aggregator.api_client import APIClient, TheGuardianApi
+from aggregator.api_client import APIClient, TheGuardianApi, NYTNewsApi
 from unittest.mock import patch, MagicMock
 
-from entities.news_article import TheGuardianArticle
+from entities.news_article import TheGuardianArticle, NYTArticle
 
 
 class TestAPIClient(unittest.TestCase):
@@ -14,6 +14,11 @@ class TestAPIClient(unittest.TestCase):
         self.the_guardian_api = TheGuardianApi(
             api_key="f6f96e89-7097-46c0-9266-5d2001202068",
             base_url="https://content.guardianapis.com/",
+        )
+        # added nyt api
+        self.nyt_api = NYTNewsApi(
+            api_key = 'zv2dhOM3UJMipTtusff6f1dD3GSxnEXe',
+            base_url = 'https://api.nytimes.com/svc/search/v2/'
         )
 
     def test_fetch_sources_returns_expected_list(self):
@@ -28,6 +33,25 @@ class TestAPIClient(unittest.TestCase):
     # - BBCApi
     # - NYTNewsApi
     # - GNewsApi
+    @patch("aggregator.api_client.requests.get")
+    def test_fetch_articles_sucess_nty(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            
+        }
+        mock_response.status_code = 200
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+        # Run method
+        articles = self.nyt_api.fetch_articles(
+            category="Technology",
+        )
+        # Assertions
+        self.assertIsInstance(articles, list)
+        self.assertEqual(len(articles), 1)
+        self.assertIsInstance(articles[0], NYTArticle)
+        self.assertEqual(articles[0].title, "NYT Sample Article")
+
     @patch("aggregator.api_client.requests.get")
     def test_fetch_articles_success(self, mock_get):
         # Mocking the API response JSON
