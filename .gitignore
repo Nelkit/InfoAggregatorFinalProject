@@ -8,3 +8,4 @@ tests/__pycache__/*
 tests/__pycache__/**
 entities/__pycache__/*
 entities/__pycache__/**
+my_env/*

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 from aggregator.scraper import ArticleScraper
-from entities.news_article import NewsArticle
+from entities.news_article import NewsArticle, NYTArticle
 
 class TestArticleScraper(unittest.TestCase):
 
@@ -16,10 +16,28 @@ class TestArticleScraper(unittest.TestCase):
             summary="",
             date="2023-10-01",
         )
-        self.scraper = ArticleScraper(articles=[self.article])
+        self.article_nyt = NewsArticle(
+            title = '',
+            feature_image_url = None,
+            content = None,
+            author = "John Doe",
+            source = "New York Times",
+            summary = 'Some summary',
+            date = '20250501',
+            url = "https://example.com"
+        )
+        self.scraper = ArticleScraper(articles=[self.article, self.article_nyt])
 
     @patch.object(ArticleScraper, 'scraping_guardian')
     def test_enrich_articles_with_valid_scraper(self, mock_scraping):
+
+        self.scraper.enrich_articles()
+        self.articles = self.scraper.get_enriched_articles()
+
+        self.assertIsInstance(self.articles, list)
+        
+    @patch.object(ArticleScraper, 'scraping_nytimes')
+    def test_enrich_articles_with_valid_scraper_NYT(self, mock_scraping):
 
         self.scraper.enrich_articles()
         self.articles = self.scraper.get_enriched_articles()
