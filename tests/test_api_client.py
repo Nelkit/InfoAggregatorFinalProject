@@ -2,10 +2,10 @@ import unittest
 
 import requests
 
-from aggregator.api_client import APIClient, TheGuardianApi, NYTNewsApi
+from aggregator.api_client import APIClient, GNewsApi, TheGuardianApi, NYTNewsApi
 from unittest.mock import patch, MagicMock
 
-from entities.news_article import TheGuardianArticle, NYTArticle
+from entities.news_article import TheGuardianArticle, NYTArticle, GNewsArticle
 
 
 class TestAPIClient(unittest.TestCase):
@@ -20,6 +20,12 @@ class TestAPIClient(unittest.TestCase):
             api_key = 'zv2dhOM3UJMipTtusff6f1dD3GSxnEXe',
             base_url = 'https://api.nytimes.com/svc/search/v2/'
         )
+        # added gnews api
+        self.gnews_api = GNewsApi(
+
+            api_key="83eb364c60aa9cad8a67cf93ca2bde9d",
+            base_url="https://GNews.io/api/v4/",
+		)
 
     def test_fetch_sources_returns_expected_list(self):
         expected = ["All", "BBC News", "GNews", "The Guardian", "New York Times"]
@@ -186,3 +192,59 @@ class TestAPIClient(unittest.TestCase):
         with self.assertRaises(KeyError):
             self.the_guardian_api.fetch_articles(category="Technology")
 
+
+
+#Gnews API
+    @patch("aggregator.api_client.requests.get")
+    def test_fetch_gnews_articles_success(self, mock_get):
+        # Mocking the API response JSON
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "articles": [
+                            {
+                            "title": "Google's Pixel 7",
+                            "description": "Now we have a complete image of what the next Google flagship phones will look like. All that's left now is to welcome them during their October announcement!",
+                            "content": "Google’s highly anticipated upcoming Pixel 7 series is just around the corner, scheduled to be announced on October 6, 2022, at 10 am EDT during the Made by Google event. Well, not that there is any lack of images showing the two new Google phones, b... [1419 chars]",
+                            "url": "https://www.phonearena.com/news/google-pixel-7-and-pro-design-revealed-even-more-fresh-renders_id142800",
+                            "image": "https://m-cdn.phonearena.com/images/article/142800-wide-two_1200/Googles-Pixel-7-and-7-Pros-design-gets-revealed-even-more-with-fresh-crisp-renders.jpg",
+                            "publishedAt": "2022-09-28T08:14:24Z",
+                            "source": {
+                                "name": "PhoneArena",
+                                "url": "https://www.phonearena.com"
+                                }
+                            }
+                        ]
+        }
+        mock_response.status_code = 200
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+
+        # Run method
+        articles = self.gnews_api.fetch_articles(
+            category="Technology",
+        )
+
+        # Assertions
+        self.assertIsInstance(articles, list)
+        self.assertEqual(len(articles), 1)
+        self.assertIsInstance(articles[0], GNewsArticle)
+        self.assertEqual(articles[0].title, "Google's Pixel 7")
+
+    @patch("aggregator.api_client.requests.get")
+    def test_fetch_gnews_articles_bad_response(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("Bad request")
+        mock_get.return_value = mock_response
+
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.gnews_api.fetch_articles(category="Technology")
+
+    @patch("aggregator.api_client.requests.get")
+    def test_fetch_gnews_articles_invalid_json_structure(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status = MagicMock()
+        mock_response.json.return_value = {}  # Missing expected keys
+        mock_get.return_value = mock_response
+
+        with self.assertRaises(KeyError):
+            self.gnews_api.fetch_articles(category="Technology")
