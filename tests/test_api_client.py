@@ -1,11 +1,8 @@
 import unittest
-
 import requests
-
 from aggregator.api_client import APIClient, GNewsApi, TheGuardianApi, NYTNewsApi, BBCApi
 from unittest.mock import patch, MagicMock
-
-from entities.news_article import TheGuardianArticle, NYTArticle, GNewsArticle
+from entities.news_article import TheGuardianArticle, NYTArticle, GNewsArticle, BBCArticle
 import os
 
 
@@ -36,7 +33,8 @@ class TestAPIClient(unittest.TestCase):
     def test_fetch_categories_returns_expected_list(self):
         expected = ["Technology", "World", "Business", "Politics", "Science", "Culture"]
         self.assertEqual(self.client.fetch_categories(), expected)
-    
+
+    """ New York Times API Tests """
     @patch("aggregator.api_client.requests.get")
     def test_fetch_articles_sucess_NYT(self, mock_get):
         mock_response = MagicMock()
@@ -131,12 +129,9 @@ class TestAPIClient(unittest.TestCase):
         with self.assertRaises(KeyError):
             self.nyt_api.fetch_articles(category="Technology")
 
-    #TODO Repetir estas tres pruebas para cada API
-    # - BBCApi
-    # - NYTNewsApi
-    # - GNewsApi
+    """ The Guardian API Tests """
     @patch("aggregator.api_client.requests.get")
-    def test_fetch_articles_success(self, mock_get):
+    def test_fetch_articles_success_guardian(self, mock_get):
         # Mocking the API response JSON
         mock_response = MagicMock()
         mock_response.json.return_value = {
@@ -176,7 +171,7 @@ class TestAPIClient(unittest.TestCase):
         self.assertEqual(articles[0].title, "Sample Article")
 
     @patch("aggregator.api_client.requests.get")
-    def test_fetch_articles_bad_response(self, mock_get):
+    def test_fetch_articles_bad_response_guardian(self, mock_get):
         mock_response = MagicMock()
         mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("Bad request")
         mock_get.return_value = mock_response
@@ -185,7 +180,7 @@ class TestAPIClient(unittest.TestCase):
             self.the_guardian_api.fetch_articles(category="Technology")
 
     @patch("aggregator.api_client.requests.get")
-    def test_fetch_articles_invalid_json_structure(self, mock_get):
+    def test_fetch_articles_invalid_json_structure_guardian(self, mock_get):
         mock_response = MagicMock()
         mock_response.raise_for_status = MagicMock()
         mock_response.json.return_value = {}  # Missing expected keys
@@ -194,11 +189,9 @@ class TestAPIClient(unittest.TestCase):
         with self.assertRaises(KeyError):
             self.the_guardian_api.fetch_articles(category="Technology")
 
-
-
-#Gnews API
+    """ The GNews API Tests """
     @patch("aggregator.api_client.requests.get")
-    def test_fetch_gnews_articles_success(self, mock_get):
+    def test_fetch_articles_success_gnews(self, mock_get):
         # Mocking the API response JSON
         mock_response = MagicMock()
         mock_response.json.return_value = {
@@ -206,7 +199,7 @@ class TestAPIClient(unittest.TestCase):
                             {
                             "title": "Google's Pixel 7",
                             "description": "Now we have a complete image of what the next Google flagship phones will look like. All that's left now is to welcome them during their October announcement!",
-                            "content": "Google’s highly anticipated upcoming Pixel 7 series is just around the corner, scheduled to be announced on October 6, 2022, at 10 am EDT during the Made by Google event. Well, not that there is any lack of images showing the two new Google phones, b... [1419 chars]",
+                            "content": "Google's highly anticipated upcoming Pixel 7 series is just around the corner, scheduled to be announced on October 6, 2022, at 10 am EDT during the Made by Google event. Well, not that there is any lack of images showing the two new Google phones, b... [1419 chars]",
                             "url": "https://www.phonearena.com/news/google-pixel-7-and-pro-design-revealed-even-more-fresh-renders_id142800",
                             "image": "https://m-cdn.phonearena.com/images/article/142800-wide-two_1200/Googles-Pixel-7-and-7-Pros-design-gets-revealed-even-more-with-fresh-crisp-renders.jpg",
                             "publishedAt": "2022-09-28T08:14:24Z",
@@ -233,7 +226,7 @@ class TestAPIClient(unittest.TestCase):
         self.assertEqual(articles[0].title, "Google's Pixel 7")
 
     @patch("aggregator.api_client.requests.get")
-    def test_fetch_gnews_articles_bad_response(self, mock_get):
+    def test_fetch_articles_bad_response_gnews(self, mock_get):
         mock_response = MagicMock()
         mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("Bad request")
         mock_get.return_value = mock_response
@@ -242,7 +235,7 @@ class TestAPIClient(unittest.TestCase):
             self.gnews_api.fetch_articles(category="Technology")
 
     @patch("aggregator.api_client.requests.get")
-    def test_fetch_gnews_articles_invalid_json_structure(self, mock_get):
+    def test_fetch_articles_invalid_json_structure_gnews(self, mock_get):
         mock_response = MagicMock()
         mock_response.raise_for_status = MagicMock()
         mock_response.json.return_value = {}  # Missing expected keys
@@ -250,3 +243,62 @@ class TestAPIClient(unittest.TestCase):
 
         with self.assertRaises(KeyError):
             self.gnews_api.fetch_articles(category="Technology")
+
+    """ BBC API Tests """
+    @patch("aggregator.api_client.requests.get")
+    def test_fetch_articles_success_bbc(self, mock_get):
+        # Mocking the API response JSON
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "articles": [
+                {
+                    "uuid": "bbc-123",
+                    "title": "BBC Test Article",
+                    "description": "This is a test article from BBC",
+                    "url": "https://bbc.com/test-article",
+                    "image_url": "https://bbc.com/test-image.jpg",
+                    "published_at": "2024-03-20T10:00:00Z",
+                    "source": {"name": "BBC News"},
+                    "content": "This is the full content of the BBC article",
+                    "body": "This is the body of the BBC article"
+                }
+            ]
+        }
+        mock_response.status_code = 200
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+
+        # Run method
+        articles = self.bbc_api.fetch_articles(
+            source="BBC News",
+            category="Technology",
+        )
+
+        # Assertions
+        self.assertIsInstance(articles, list)
+        self.assertEqual(len(articles), 1)
+        self.assertIsInstance(articles[0], BBCArticle)
+        self.assertEqual(articles[0].title, "BBC Test Article")
+        self.assertEqual(articles[0].url, "https://bbc.com/test-article")
+
+    @patch("aggregator.api_client.requests.get")
+    def test_fetch_articles_bad_response_bbc(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("Bad request")
+        mock_get.return_value = mock_response
+
+        with self.assertRaises(requests.exceptions.HTTPError):
+            self.bbc_api.fetch_articles(category="Technology", source="BBC News")
+
+    @patch("aggregator.api_client.requests.get")
+    def test_fetch_articles_invalid_json_structure_bbc(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status = MagicMock()
+        mock_response.json.return_value = {}  # Missing expected keys
+        mock_get.return_value = mock_response
+
+        with self.assertRaises(KeyError):
+            self.bbc_api.fetch_articles(category="Technology", source="BBC News")
+
+if __name__ == '__main__':
+    unittest.main()
