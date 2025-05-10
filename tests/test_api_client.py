@@ -2,30 +2,32 @@ import unittest
 
 import requests
 
-from aggregator.api_client import APIClient, GNewsApi, TheGuardianApi, NYTNewsApi
+from aggregator.api_client import APIClient, GNewsApi, TheGuardianApi, NYTNewsApi, BBCApi
 from unittest.mock import patch, MagicMock
 
 from entities.news_article import TheGuardianArticle, NYTArticle, GNewsArticle
+import os
 
 
 class TestAPIClient(unittest.TestCase):
     def setUp(self):
         self.client = APIClient(api_key="dummy_key", base_url="https://example.com")
         self.the_guardian_api = TheGuardianApi(
-            api_key="f6f96e89-7097-46c0-9266-5d2001202068",
-            base_url="https://content.guardianapis.com/",
+            api_key=os.getenv("THE_GUARDIAN_API_KEY"),
+            base_url=os.getenv("THE_GUARDIAN_BASE_URL")
         )
-        # added nyt api
+        self.bbc_api = BBCApi(
+            api_key=os.getenv("BBC_API_KEY"),
+            base_url=os.getenv("BBC_BASE_URL")
+        )
         self.nyt_api = NYTNewsApi(
-            api_key = 'zv2dhOM3UJMipTtusff6f1dD3GSxnEXe',
-            base_url = 'https://api.nytimes.com/svc/search/v2/'
+            api_key=os.getenv("NYT_API_KEY"),
+            base_url=os.getenv("NYT_BASE_URL")
         )
-        # added gnews api
         self.gnews_api = GNewsApi(
-
-            api_key="83eb364c60aa9cad8a67cf93ca2bde9d",
-            base_url="https://GNews.io/api/v4/",
-		)
+            api_key=os.getenv("GNEWS_API_KEY"),
+            base_url=os.getenv("GNEWS_BASE_URL")
+        )
 
     def test_fetch_sources_returns_expected_list(self):
         expected = ["All", "BBC News", "GNews", "The Guardian", "New York Times"]

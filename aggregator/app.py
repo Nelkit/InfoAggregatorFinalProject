@@ -6,7 +6,7 @@ from aggregator.processor import NewsProcessor
 from aggregator.visualizer import NewsVisualizer
 from entities.news_article import NewsArticle
 from entities.user_input import UserInput
-
+import os
 
 class AggregatorApp:
 	"""
@@ -21,20 +21,20 @@ class AggregatorApp:
 		# Initialize API clients with their respective credentials
 		self.api_client = APIClient(api_key="", base_url="")
 		self.the_guardian_api = TheGuardianApi(
-			api_key="f6f96e89-7097-46c0-9266-5d2001202068",
-			base_url="https://content.guardianapis.com/",
+			api_key=os.getenv("THE_GUARDIAN_API_KEY"),
+			base_url=os.getenv("THE_GUARDIAN_BASE_URL")
 		)
 		self.bbc_api = BBCApi(
-			api_key="bb59763f972342a28391325a180928c3",
-			base_url="https://newsapi.org/v2/top-headlines/"
+			api_key=os.getenv("BBC_API_KEY"),
+			base_url=os.getenv("BBC_BASE_URL")
 		)
 		self.nyt_api = NYTNewsApi(
-			api_key="zv2dhOM3UJMipTtusff6f1dD3GSxnEXe",
-			base_url="https://api.nytimes.com/svc/search/v2/"
+			api_key=os.getenv("NYT_API_KEY"),
+			base_url=os.getenv("NYT_BASE_URL")
 		)
 		self.gnews_api = GNewsApi(
-			api_key="83eb364c60aa9cad8a67cf93ca2bde9d",
-			base_url="https://GNews.io/api/v4/",
+			api_key=os.getenv("GNEWS_API_KEY"),
+			base_url=os.getenv("GNEWS_BASE_URL")
 		)
 		
 		# Initialize processors and visualizers
