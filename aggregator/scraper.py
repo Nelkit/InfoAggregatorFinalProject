@@ -3,11 +3,21 @@ from bs4 import BeautifulSoup
 import requests
 
 class ArticleScraper:
+    """
+    Class responsible for enriching news articles with additional content through web scraping.
+    Supports multiple news sources including The Guardian, New York Times, GNews, and BBC News.
+    """
+
     def __init__(self, articles: list[NewsArticle]):
-        # Lista para guardar los artículos a enriquecer
+        """
+        Initialize the ArticleScraper with a list of articles to enrich.
+
+        Args:
+            articles (list[NewsArticle]): List of news articles to be enriched with additional content
+        """
         self.articles: list[NewsArticle] = articles
 
-        # Diccionario que asocia cada fuente con su respectiva función de scraping
+        # Dictionary mapping news sources to their respective scraping functions
         self.scrapers = {
             "The Guardian": self.scraping_guardian,
             "New York Times": self.scraping_nytimes,
@@ -18,81 +28,115 @@ class ArticleScraper:
         self.enrich_articles()
 
     def enrich_articles(self):
-        # Itera sobre todos los artículos agregados
+        """
+        Enriches all articles with additional content by applying the appropriate scraping function
+        based on the article's source.
+        """
         for article in self.articles:
-            # Obtiene la función de scraping según la fuente del artículo
             scraper = self.scrapers.get(article.source)
 
             if scraper:
                 try:
-                    # Ejecuta la función de scraping para obtener los datos enriquecidos
+                    # Apply scraping function to get enriched data
                     enriched_data = scraper(article)
 
-                    # Asigna cada dato enriquecido al atributo correspondiente del artículo
+                    # Update article attributes with enriched data
                     for key, value in enriched_data.items():
                         setattr(article, key, value)
                 except Exception as e:
-                    # En caso de error en la solicitud o parsing, se muestra el mensaje
                     print(f"Error scraping {article.source} ({article.url}): {e}")
             else:
-                # Si no hay scraper definido para esa fuente, se muestra advertencia
                 print(f"No scraper available for source: {article.source}")
 
     def get_enriched_articles(self) -> list[NewsArticle]:
-        # Devuelve la lista de artículos enriquecidos
+        """
+        Returns the list of enriched articles.
+
+        Returns:
+            list[NewsArticle]: List of articles with enriched content
+        """
         return self.articles
 
     def scraping_guardian(self, article: NewsArticle) -> dict:
-        # Realiza scraping de un artículo de The Guardian
+        """
+        Scrapes content from a The Guardian article.
+
+        Args:
+            article (NewsArticle): The article to scrape
+
+        Returns:
+            dict: Dictionary containing the scraped content
+        """
         response = requests.get(article.url)
         soup = BeautifulSoup(response.content, 'html.parser')
 
         return {
-            #"title": ""
-            #"author": "",
-            "content": soup.find('div', class_='article-body-viewer-selector').text.strip() if soup.find('div', class_='article-body-viewer-selector') else None,
-            #"feature_image_url": "",
+            "content": soup.find('div', class_='article-body-viewer-selector').text.strip() 
+                      if soup.find('div', class_='article-body-viewer-selector') else None,
         }
 
     def scraping_nytimes(self, article: NYTArticle) -> dict:
+        """
+        Scrapes content from a New York Times article.
+
+        Args:
+            article (NYTArticle): The article to scrape
+
+        Returns:
+            dict: Dictionary containing the scraped content including author, content, title, and image
+        """
         response = requests.get(article.url)
         soup = BeautifulSoup(response.content, 'html.parser')
-        # creating a dictionary that contains the neccessary information from the article
         scrapping_results = {}
-        # scrapping the author
+
+        # Scrape author if not available
         if article.author is None or article.author == '':
-            scrapping_results["author"] = ' '.join([a.text.strip().title() for a in soup.find_all(attrs = {"itemprop" : "name"})])
-        # scrapping the content
+            scrapping_results["author"] = ' '.join([a.text.strip().title() 
+                                                  for a in soup.find_all(attrs={"itemprop": "name"})])
+
+        # Scrape content if not available
         if article.content is None or article.content == '':
             article_tag = soup.find('article')
             if article_tag:
                 scrapping_results['content'] = ' '.join(p.text.strip() for p in article_tag.find_all('p'))
             else:
                 scrapping_results['content'] = ' '.join(p.text.strip() for p in soup.find_all('p'))
-        # scrappting title
+
+        # Scrape title if not available
         if article.title is None or article.title == '':
             if article.main != '':
                 scrapping_results['title'] = article.main
             else:
-                scrapping_results['title'] = soup.find('h1', attrs = {'data-testid' : 'headline'}).text.strip()
-        # scrapping images
+                scrapping_results['title'] = soup.find('h1', attrs={'data-testid': 'headline'}).text.strip()
+
+        # Scrape image if not available
         if article.feature_image_url is None or article.feature_image_url == '':
             scrapping_results['feature_image_url'] = soup.find('img').get('src')
-        return scrapping_results      
 
+        return scrapping_results
 
     def scraping_GNews(self, url: str) -> dict:
-        # Realiza scraping de un artículo de GNews
-        response = requests.get(url)
-        soup = BeautifulSoup(response.content, 'html.parser')
-        #print(url)
+        """
+        Scrapes content from a GNews article.
 
-        # Extrae el contenido del artículo: adaptenlo según la estructura real de la página
-        return {
+        Args:
+            url (str): URL of the article to scrape
 
-        }
+        Returns:
+            dict: Dictionary containing the scraped content
+        """
+        return {}
 
     def scraping_bbc(self, article: NewsArticle) -> dict:
+        """
+        Scrapes content from a BBC News article.
+
+        Args:
+            article (NewsArticle): The article to scrape
+
+        Returns:
+            dict: Dictionary containing the scraped content including title, description, image, and body
+        """
         try:
             headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -102,19 +146,17 @@ class ArticleScraper:
 
             soup = BeautifulSoup(response.content, "html.parser")
 
-            # Extract meta info
+            # Extract meta information
             title = soup.find("meta", property="og:title") or soup.find("title")
             title_text = title["content"] if title else "No title found"
 
-            # Extract description from meta tags
             description = soup.find("meta", property="og:description") or soup.find("meta", name="description")
             description_text = description["content"] if description else "No description found"
 
-            # Extract image URL from meta tags
             image = soup.find("meta", property="og:image")
             image_url = image["content"] if image else "No image found"
 
-            # Extract article body (look for div with the text-block component)
+            # Extract article body
             body = soup.find("div", {"data-component": "text-block"})
             paragraphs = body.find_all("p") if body else []
             body_text = "\n".join([p.get_text() for p in paragraphs])
@@ -123,7 +165,7 @@ class ArticleScraper:
                 "title": title_text,
                 "description": description_text,
                 "image_url": image_url,
-                "body": body_text  # Add this to pass to BBCArticle
+                "body": body_text
             }
 
         except requests.RequestException as e:
