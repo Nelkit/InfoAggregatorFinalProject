@@ -1,5 +1,6 @@
 .venv
 .env
+.idea
 __pycache__/*
 __pycache__/**
 aggregator/__pycache__/*
