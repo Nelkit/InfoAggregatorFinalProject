@@ -98,7 +98,7 @@ class AggregatorApp:
 
 	''' Renders each article in the latest news section '''
 
-	def render_article(self, article: NewsArticle):
+	def render_article(self, key, article: NewsArticle):
 		"""
 		Renders a single article preview in the latest news section.
 		
@@ -108,9 +108,9 @@ class AggregatorApp:
 		with st.container(border=True):
 			st.markdown(
 				article.get_article_preview_md(limit=200),
-				unsafe_allow_html=True
+				unsafe_allow_html=True,
 			)
-			if st.button("🔗 Read More", key=article.get_id()):
+			if st.button("🔗 Read More", key=f"link_{key}_{article.get_id()}"):
 				st.session_state['article_id'] = article.get_id()
 				st.session_state['source'] = article.source
 
@@ -123,8 +123,8 @@ class AggregatorApp:
 		Renders the latest news section with all fetched articles.
 		"""
 		st.subheader("Latest News")
-		for article in self.articles:
-			self.render_article(article)
+		for i, article in enumerate(self.articles):
+			self.render_article(key=i, article=article)
 
 	''' Renders the data visualization section '''
 
