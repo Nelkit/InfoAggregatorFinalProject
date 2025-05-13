@@ -2,7 +2,7 @@
 
 ## Python 🐍 Programming Subject
 
-## Description  
+## Description
 This project challenges you to build an Information Aggregator using Web APIs and Web Scraping techniques. It emphasizes the application of object-oriented programming (OOP) and the implementation of unit testing to ensure a modular and reliable codebase. Additionally, a Graphical User Interface (GUI) is required to enhance user interaction and usability.
 
 ## Requirements  
