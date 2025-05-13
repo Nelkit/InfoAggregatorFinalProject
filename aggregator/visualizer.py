@@ -182,36 +182,48 @@ class NewsVisualizer:
         articles_to_plot = articles[:max_articles]
 
         # Calculate word counts for each article
-        word_counts = [
-            {
-                "Article": " ".join(article.title.split()[:2]) if hasattr(article, 'title') and article.title else f"Article {i+1}",
-                "Word Count": len(article.body.split()) if hasattr(article, 'body') and article.source == "bbc" 
-                            else len(article.content.split()) if hasattr(article, 'content') else 0,
-                "Source": article.source if hasattr(article, 'source') and article.source else "Unknown"
-            }
-            for i, article in enumerate(articles_to_plot)
-        ]
+        try:
+            word_counts = [
+                {
+                    "Article": " ".join(article.title.split()[:2]) if hasattr(article, 'title') and article.title else f"Article {i+1}",
+                    "Word Count": len(article.body.split()) if hasattr(article, 'body') and article.source == "bbc"
+                                else len(article.content.split()) if hasattr(article, 'content') else 0,
+                    "Source": article.source if hasattr(article, 'source') and article.source else "Unknown"
+                }
+                for i, article in enumerate(articles_to_plot)
+            ]
 
-        # Create visualization
-        df = pd.DataFrame(word_counts)
-        fig = px.bar(
-            df,
-            y='Article',
-            x='Word Count',
-            color='Source',
-            title="Number of Words per Article",
-            labels={'Article': 'Article', 'Word Count': 'Number of Words', 'Source': 'Source'},
-            color_discrete_sequence=px.colors.qualitative.Set2,
-            orientation='h'
-        )
+            # Create visualization
+            df = pd.DataFrame(word_counts)
+            fig = px.bar(
+                df,
+                y='Article',
+                x='Word Count',
+                color='Source',
+                title="Number of Words per Article",
+                labels={'Article': 'Article', 'Word Count': 'Number of Words', 'Source': 'Source'},
+                color_discrete_sequence=px.colors.qualitative.Set2,
+                orientation='h'
+            )
 
-        # Customize layout
-        fig.update_layout(
-            yaxis_title="Article",
-            xaxis_title="Number of Words",
-            height=600,
-            margin=dict(l=150),
-            showlegend=True
-        )
+            # Customize layout
+            fig.update_layout(
+                yaxis_title="Article",
+                xaxis_title="Number of Words",
+                height=600,
+                margin=dict(l=150),
+                showlegend=True
+            )
 
-        return fig
+            return fig
+        except Exception as e:
+            st.error(f"Error generating word count plot: {e}")
+            data = {'Article': ['None'], 'Word Count': [0]}
+            return px.bar(
+                data_frame=data,
+                x='Word Count',
+                y='Article',
+                title="Word Count Plot",
+                labels={'x': 'Number of Words', 'y': 'Article'},
+                orientation='h'
+            )
