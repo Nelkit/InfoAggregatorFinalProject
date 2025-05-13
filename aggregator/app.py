@@ -157,7 +157,6 @@ class AggregatorApp:
 				plot = self.visualizer.number_of_words_plot(self.articles)
 				st.plotly_chart(plot, key="chart_4")
 
-
 	''' Renders the footer with status and last update '''
 	def render_footer(self):
 		"""
@@ -177,9 +176,9 @@ class AggregatorApp:
 			st.markdown(col2_text, unsafe_allow_html=True)
 
 	''' Renders the main application '''
-	def run(self):
+	def setUpUI(self):
 		"""
-		Main method to run the News Aggregator application.
+		Main method to setUpUI the News Aggregator application.
 		Sets up the Streamlit interface and handles the main application flow.
 		"""
 		st.set_page_config(page_title="News Aggregator", layout="wide")

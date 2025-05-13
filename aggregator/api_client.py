@@ -107,7 +107,6 @@ class TheGuardianApi(APIClient):
         except KeyError as e:
             raise KeyError(f"Error parsing API response: {e}")
 
-
 class BBCApi(APIClient):
     @st.cache_data
     def fetch_articles(_self, source: str, category: str, page_size: int = 3) -> list[BBCArticle]:
@@ -161,7 +160,6 @@ class BBCApi(APIClient):
             raise requests.exceptions.HTTPError(f"Error fetching news: {e}")
         except KeyError as e:
             raise KeyError(f"Error parsing API response: {e}")
-
 
 class NYTNewsApi(APIClient):
     @st.cache_data
